@@ -4,7 +4,11 @@ import java.util.Collections;
 import java.util.Set;
 
 public class GameOver<T> extends GameState<T> {
-  public GameOver() {}
+  private final boolean win;
+
+  public GameOver(boolean win) {
+    this.win = win;
+  }
 
   @Override
   public Set<T> getTransitions() {
@@ -12,11 +16,25 @@ public class GameOver<T> extends GameState<T> {
   }
 
   @Override
+  public boolean isWon() {
+    return win;
+  }
+
+  @Override
+  public boolean isLost() {
+    return win;
+  }
+
+  @Override
   protected GameState<T> updateState(T transition) {
     throw new UnsupportedOperationException();
   }
 
-  public static <T> GameOver<T> create() {
-    return new GameOver<>();
+  public static <T> GameOver<T> win() {
+    return new GameOver<>(true);
+  }
+
+  public static <T> GameOver<T> lose() {
+    return new GameOver<>(false);
   }
 }

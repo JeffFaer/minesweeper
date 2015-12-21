@@ -7,6 +7,14 @@ public abstract class GameState<T> {
 
   public abstract Set<T> getTransitions();
 
+  public boolean isComplete() {
+    return getTransitions().isEmpty();
+  }
+
+  public abstract boolean isWon();
+
+  public abstract boolean isLost();
+
   public boolean isValid(T transition) {
     return getTransitions().contains(transition);
   }
