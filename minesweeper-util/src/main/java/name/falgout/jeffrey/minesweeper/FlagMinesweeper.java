@@ -125,6 +125,8 @@ public class FlagMinesweeper extends Minesweeper {
 
     if (countDown) {
       return s.getNumber() == 0;
+    } else if (s.getNumber() == 0) {
+      return false;
     } else {
       Set<Point> neighbors = getBoard().getNeighbors(p);
       int numFlags = 0;

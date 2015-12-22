@@ -68,8 +68,12 @@ public class MinesweeperTest {
 
   @Before
   public void before() {
-    minesweeper = createMinesweeperGame();
-    board = minesweeper.getBoard();
+    init(createMinesweeperGame());
+  }
+  
+  public void init(Minesweeper game) {
+    minesweeper = game;
+    board = game.getBoard();
   }
 
   @Test
