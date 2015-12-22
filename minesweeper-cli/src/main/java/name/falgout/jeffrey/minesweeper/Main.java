@@ -2,6 +2,8 @@ package name.falgout.jeffrey.minesweeper;
 
 import java.awt.Point;
 import java.io.Console;
+import java.util.Set;
+import java.util.function.Function;
 
 import name.falgout.jeffrey.minesweeper.Board.Square;
 
@@ -23,7 +25,7 @@ public class Main implements Runnable {
     int numRows = Integer.parseInt(parts[0].trim());
     int numCols = Integer.parseInt(parts[1].trim());
     int numMines = Integer.parseInt(parts[2].trim());
-    NeighborFunction f = NeighborFunction.CIRCLE;
+    Function<Point, Set<Point>> f = NeighborFunction.CIRCLE;
     if (parts.length == 4) {
       f = NeighborFunction.values()[Integer.parseInt(parts[3].trim())];
     }

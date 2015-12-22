@@ -34,21 +34,24 @@ public enum NeighborFunction implements Function<Point, Set<Point>> {
   @Override
   public abstract Set<Point> apply(Point t);
 
-  public static Function<Point, Set<Point>> wrapAround(Function<Point, Set<Point>> neighborFunction, int numRows,
+  public static Function<Set<Point>, Set<Point>> wrapAround(int numRows,
       int numColumns) {
-    return neighborFunction.andThen(neighbors -> {
+    return neighbors -> {
+      Set<Point> wrappedNeighbors = new LinkedHashSet<>(neighbors.size());
       for (Point neighbor : neighbors) {
+        neighbor.x %= numRows;
         if (neighbor.x < 0) {
-          neighbor.x %= numRows;
           neighbor.x += numRows;
         }
+        neighbor.y %= numColumns;
         if (neighbor.y < 0) {
-          neighbor.y %= numColumns;
           neighbor.y += numColumns;
         }
+        
+        wrappedNeighbors.add(neighbor);
       }
 
-      return neighbors;
-    });
+      return wrappedNeighbors;
+    };
   }
 }
