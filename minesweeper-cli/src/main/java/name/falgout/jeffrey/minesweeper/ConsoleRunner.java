@@ -1,25 +1,14 @@
 package name.falgout.jeffrey.minesweeper;
 
 import java.awt.Point;
-import java.io.Console;
 import java.util.Set;
 import java.util.function.Function;
 
 import name.falgout.jeffrey.minesweeper.Board.Square;
 
-public class Main implements Runnable {
+public class ConsoleRunner {
   public static void main(String[] args) {
-    new Main(System.console()).run();
-  }
-
-  private final Console console;
-
-  public Main(Console console) {
-    this.console = console;
-  }
-
-  @Override
-  public void run() {
+    Console console = Console.SYSTEM_CONSOLE;
     String line = console.readLine("Input num_rows, num_cols, num_mines, [0=plus|1=circle]: ");
     String[] parts = line.split(",");
     int numRows = Integer.parseInt(parts[0].trim());
@@ -30,14 +19,32 @@ public class Main implements Runnable {
       f = NeighborFunction.values()[Integer.parseInt(parts[3].trim())];
     }
 
-    Minesweeper m = new Minesweeper(numRows, numCols, numMines, f);
-    GameState<Point> state = m;
-    Board view = m.getBoard();
+    if (!new ConsoleRunner(console, new Minesweeper(numRows, numCols, numMines, f)).runGame()) {
+      System.exit(1);
+    }
+  }
+
+  private final Console console;
+  private final Minesweeper game;
+
+  public ConsoleRunner(Minesweeper game) {
+    this(Console.SYSTEM_CONSOLE, game);
+  }
+
+  public ConsoleRunner(Console console, Minesweeper game) {
+    super();
+    this.console = console;
+    this.game = game;
+  }
+
+  public boolean runGame() {
+    GameState<Point> state = game;
+    Board view = game.getBoard();
     do {
       drawBoard(view);
 
-      line = console.readLine("Input a point row, col: ");
-      parts = line.split(",");
+      String line = console.readLine("Input a point row, col: ");
+      String[] parts = line.split(",");
       int row = Integer.parseInt(parts[0].trim()) - 1;
       int col = Integer.parseInt(parts[1].trim()) - 1;
       try {
@@ -50,9 +57,10 @@ public class Main implements Runnable {
     drawBoard(view);
     if (state.isWon()) {
       console.printf("You won!%n");
+      return true;
     } else {
       console.printf("You lost!%n");
-      System.exit(1);
+      return false;
     }
   }
 

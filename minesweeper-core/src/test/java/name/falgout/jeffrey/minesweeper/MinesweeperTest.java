@@ -46,16 +46,28 @@ public class MinesweeperTest {
    *  └─┴─┴─┴─┴─┘
    * </pre>
    */
-  private final long seed = 5;
-  private final Point start = new Point(1, 1);
-  private Minesweeper minesweeper;
-  private Board board;
+  static final long seed = 5;
+  static final Point start = new Point(1, 1);
+
+  public static Minesweeper createMinesweeperGame() {
+    return createMinesweeperGame(true);
+  }
+
+  public static Minesweeper createMinesweeperGame(boolean firstMove) {
+    Minesweeper game = new Minesweeper(5, 5, 10, NeighborFunction.CIRCLE, seed);
+    if (firstMove) {
+      game.transition(start);
+    }
+
+    return game;
+  }
+
+  Minesweeper minesweeper;
+  Board board;
 
   @Before
   public void before() {
-    minesweeper = new Minesweeper(5, 5, 10, NeighborFunction.CIRCLE, seed);
-    minesweeper.transition(start);
-
+    minesweeper = createMinesweeperGame();
     board = minesweeper.getBoard();
   }
 
