@@ -16,17 +16,17 @@
             <groupId>name.falgout.jeffrey</groupId>
             <artifactId>minesweeper-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>name.falgout.jeffrey</groupId>
-            <artifactId>minesweeper-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>name.falgout.jeffrey</groupId>
+            <artifactId>minesweeper-util</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

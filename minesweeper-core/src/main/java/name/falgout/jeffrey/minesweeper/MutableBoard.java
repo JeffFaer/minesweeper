@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-class MutableBoard implements Board {
+public class MutableBoard implements Board {
   private final Square[][] board;
   private final Function<Point, Set<Point>> neighbors;
 

@@ -12,6 +12,7 @@
     <modules>
         <module>minesweeper-core</module>
         <module>minesweeper-cli</module>
+        <module>minesweeper-util</module>
     </modules>
     <dependencyManagement>
         <dependencies>

@@ -1,5 +1,6 @@
 package name.falgout.jeffrey.minesweeper;
 
+import static name.falgout.jeffrey.minesweeper.Transition.reveal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -56,7 +57,7 @@ public class MinesweeperTest {
   public static Minesweeper createMinesweeperGame(boolean firstMove) {
     Minesweeper game = new Minesweeper(5, 5, 10, NeighborFunction.CIRCLE, seed);
     if (firstMove) {
-      game.transition(start);
+      game.transition(reveal(start));
     }
 
     return game;
@@ -85,7 +86,7 @@ public class MinesweeperTest {
       Minesweeper m = new Minesweeper(8, 8, 10, NeighborFunction.CIRCLE);
       Board b = m.getBoard();
       Point p = new Point(r.nextInt(8), r.nextInt(8));
-      assertFalse(m.transition(p).isTerminal());
+      assertFalse(m.transition(reveal(p)).isComplete());
       assertEquals(0, b.getSquare(p).getNumber());
     }
   }
@@ -103,8 +104,8 @@ public class MinesweeperTest {
 
   @Test(expected = IllegalStateException.class)
   public void cannotTransitionRevealedSquare() {
-    assertFalse(minesweeper.isValid(start));
-    minesweeper.transition(start);
+    assertFalse(minesweeper.isValid(reveal(start)));
+    minesweeper.transition(reveal(start));
   }
 
   @Test
@@ -113,14 +114,14 @@ public class MinesweeperTest {
     Point lastNotMine = new Point(2, 3);
 
     for (Point p : notMines) {
-      assertFalse(minesweeper.transition(p).isTerminal());
+      assertFalse(minesweeper.transition(reveal(p)).isComplete());
     }
 
-    assertTrue(minesweeper.transition(lastNotMine).isWon());
+    assertTrue(minesweeper.transition(reveal(lastNotMine)).isWin());
   }
 
   @Test
   public void losing() {
-    assertTrue(minesweeper.transition(new Point(0, 4)).isLost());
+    assertTrue(minesweeper.transition(reveal(new Point(0, 4))).isLoss());
   }
 }

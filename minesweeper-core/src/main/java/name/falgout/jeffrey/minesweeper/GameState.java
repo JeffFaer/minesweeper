@@ -1,19 +1,34 @@
 package name.falgout.jeffrey.minesweeper;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public abstract class GameState<T> {
+  public interface Result {}
+
+  public static enum BasicResult implements Result {
+    WIN, LOSS;
+  }
+
   protected GameState() {}
 
   public abstract Stream<T> getTransitions();
 
-  public boolean isTerminal() {
-    return getTransitions().count() == 0;
+  public boolean isComplete() {
+    return getResult().isPresent();
   }
 
-  public abstract boolean isWon();
+  public Optional<Result> getResult() {
+    return Optional.empty();
+  }
 
-  public abstract boolean isLost();
+  public boolean isWin() {
+    return getResult().filter(BasicResult.WIN::equals).isPresent();
+  }
+
+  public boolean isLoss() {
+    return getResult().filter(BasicResult.LOSS::equals).isPresent();
+  }
 
   public boolean isValid(T transition) {
     return getTransitions().filter(transition::equals).findAny().isPresent();
@@ -21,7 +36,7 @@ public abstract class GameState<T> {
 
   public GameState<T> transition(T transition) {
     if (!isValid(transition)) {
-      throw new IllegalStateException("Invalid transition.");
+      throw new IllegalStateException("Invalid transition: " + transition);
     }
 
     return updateState(transition);

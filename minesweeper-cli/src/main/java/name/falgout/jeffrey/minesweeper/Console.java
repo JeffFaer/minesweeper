@@ -3,6 +3,8 @@ package name.falgout.jeffrey.minesweeper;
 import java.io.BufferedReader;
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -118,5 +120,10 @@ public abstract class Console {
         return pout;
       }
     };
+  }
+
+  public static Console standardConsole() {
+    return SYSTEM_CONSOLE != null ? SYSTEM_CONSOLE : Console.create(new InputStreamReader(System.in),
+        new OutputStreamWriter(System.out));
   }
 }

@@ -16,15 +16,16 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import name.falgout.jeffrey.minesweeper.Board.Square;
+import name.falgout.jeffrey.minesweeper.Transition.Action;
 
 /**
  * Maintains two views of the game. The first view is the "master" view which
  * knows were every mine is. The second view is the "player" view which only
  * knows what has been revealed.
  */
-public class Minesweeper extends GameState<Point> {
+public class Minesweeper extends GameState<Transition> {
   private final MutableBoard master;
-  private final MutableBoard player;
+  protected final MutableBoard player;
 
   private final int numMines;
   private final Random random;
@@ -60,70 +61,23 @@ public class Minesweeper extends GameState<Point> {
   }
 
   @Override
-  public Stream<Point> getTransitions() {
-    return master.getValidIndexes().filter(this::isValid);
+  public Stream<Transition> getTransitions() {
+    return master.getValidIndexes().map(Transition::reveal).filter(this::isValid);
   }
 
   @Override
-  public boolean isValid(Point transition) {
-    return !player.getSquare(transition).isRevealed();
+  public boolean isValid(Transition transition) {
+    return transition.getAction() == Action.Basic.REVEAL && !player.getSquare(transition.getPoint()).isRevealed();
   }
 
   @Override
-  public boolean isWon() {
-    return false;
-  }
-
-  @Override
-  public boolean isLost() {
-    return false;
-  }
-
-  @Override
-  protected GameState<Point> updateState(Point transition) {
+  protected GameState<Transition> updateState(Transition transition) {
+    Point p = transition.getPoint();
     if (master.getSquare(0, 0) == null) {
-      generateBoard(transition);
+      generateBoard(p);
     }
 
-    boolean revealedMine = reveal(transition);
-    if (revealedMine) {
-      return GameOver.lose();
-    } else if (numRevealed + numMines == master.size()) {
-      return GameOver.win();
-    } else {
-      return this;
-    }
-  }
-
-  private boolean reveal(Point... p) {
-    Map<Point, Square> revealed = new LinkedHashMap<>();
-    Queue<Point> reveal = new LinkedList<>(Arrays.asList(p));
-    do {
-      Point revealPoint = reveal.poll();
-      Square s = master.getSquare(revealPoint);
-
-      if (!player.getSquare(revealPoint).isRevealed()) {
-        revealed.put(revealPoint, s);
-        player.setSquare(revealPoint, s);
-
-        if (s.isNumber() && s.getNumber() == 0) {
-          reveal.addAll(master.getNeighbors(revealPoint));
-        }
-      }
-    } while (!reveal.isEmpty());
-
-    numRevealed += revealed.size();
-    return revealedMine(revealed, p);
-  }
-
-  private boolean revealedMine(Map<Point, Square> revealed, Point... keys) {
-    for (Point k : keys) {
-      if (revealed.containsKey(k) && revealed.get(k).isMine()) {
-        return true;
-      }
-    }
-
-    return false;
+    return reveal(p);
   }
 
   private void generateBoard(Point p) {
@@ -146,5 +100,43 @@ public class Minesweeper extends GameState<Point> {
         }
       }
     }
+  }
+
+  protected GameState<Transition> reveal(Point... p) {
+    Map<Point, Square> revealed = new LinkedHashMap<>();
+    Queue<Point> reveal = new LinkedList<>(Arrays.asList(p));
+    do {
+      Point revealPoint = reveal.poll();
+      Square s = master.getSquare(revealPoint);
+
+      if (!player.getSquare(revealPoint).isRevealed()) {
+        revealed.put(revealPoint, s);
+        player.setSquare(revealPoint, s);
+
+        if (s.isNumber() && s.getNumber() == 0) {
+          reveal.addAll(master.getNeighbors(revealPoint));
+        }
+      }
+    } while (!reveal.isEmpty());
+
+    numRevealed += revealed.size();
+    
+    if (revealedMine(revealed, p)) {
+      return GameOver.loss();
+    } else if (numRevealed + numMines == master.size()) {
+      return GameOver.win();
+    } else {
+      return this;
+    }
+  }
+
+  private boolean revealedMine(Map<Point, Square> revealed, Point... keys) {
+    for (Point k : keys) {
+      if (revealed.containsKey(k) && revealed.get(k).isMine()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

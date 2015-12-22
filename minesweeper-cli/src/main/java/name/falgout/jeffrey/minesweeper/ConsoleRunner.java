@@ -3,12 +3,16 @@ package name.falgout.jeffrey.minesweeper;
 import java.awt.Point;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import name.falgout.jeffrey.minesweeper.Board.Square;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeper.ExtraSquare;
 
 public class ConsoleRunner {
   public static void main(String[] args) {
-    Console console = Console.SYSTEM_CONSOLE;
+    Console console = Console.standardConsole();
+
     String line = console.readLine("Input num_rows, num_cols, num_mines, [0=plus|1=circle]: ");
     String[] parts = line.split(",");
     int numRows = Integer.parseInt(parts[0].trim());
@@ -19,7 +23,7 @@ public class ConsoleRunner {
       f = NeighborFunction.values()[Integer.parseInt(parts[3].trim())];
     }
 
-    if (!new ConsoleRunner(console, new Minesweeper(numRows, numCols, numMines, f)).runGame()) {
+    if (!new ConsoleRunner(console, new FlagMinesweeper(numRows, numCols, numMines, f)).runGame()) {
       System.exit(1);
     }
   }
@@ -28,34 +32,41 @@ public class ConsoleRunner {
   private final Minesweeper game;
 
   public ConsoleRunner(Minesweeper game) {
-    this(Console.SYSTEM_CONSOLE, game);
+    this(Console.standardConsole(), game);
   }
 
   public ConsoleRunner(Console console, Minesweeper game) {
-    super();
     this.console = console;
     this.game = game;
   }
 
   public boolean runGame() {
-    GameState<Point> state = game;
+    GameState<Transition> state = game;
     Board view = game.getBoard();
+    Pattern regex = Pattern.compile("(?<flag>f(?:l(?:ag?)?)?)?,?\\s*(?<row>\\d+),\\s*(?<col>\\d+)");
     do {
       drawBoard(view);
 
-      String line = console.readLine("Input a point row, col: ");
-      String[] parts = line.split(",");
-      int row = Integer.parseInt(parts[0].trim()) - 1;
-      int col = Integer.parseInt(parts[1].trim()) - 1;
-      try {
-        state = state.transition(new Point(row, col));
-      } catch (IllegalStateException e) {
-        console.printf("Illegal move. Try again.%n");
+      String line = console.readLine("Input a point [flag] row, col: ");
+      Matcher m = regex.matcher(line);
+      if (m.matches()) {
+        boolean flag = m.group("flag") != null;
+        int row = Integer.parseInt(m.group("row")) - 1;
+        int col = Integer.parseInt(m.group("col")) - 1;
+        Point p = new Point(row, col);
+        Transition t = flag ? FlagMinesweeper.flag(p) : Transition.reveal(p);
+        try {
+          state = state.transition(t);
+        } catch (IllegalStateException e) {
+          console.printf("Illegal move. Try again.%n");
+        }
+      } else {
+        console.printf("Malformed input.%n");
       }
-    } while (!state.isTerminal());
+    } while (!state.isComplete());
 
     drawBoard(view);
-    if (state.isWon()) {
+    if (state.isWin()) {
       console.printf("You won!%n");
       return true;
     } else {
@@ -92,12 +103,15 @@ public class ConsoleRunner {
       for (int col = 0; col < view.getNumColumns(); col++) {
         Square s = view.getSquare(row, col);
         if (s.isNumber()) {
-          console.printf("%d│", s.getNumber());
+          console.printf("%d", s.getNumber());
         } else if (s.isMine()) {
-          console.printf("*│");
+          console.printf("*");
+        } else if (s == ExtraSquare.FLAG) {
+          console.printf("⚑");
         } else {
-          console.printf(" │");
+          console.printf(" ");
         }
+        console.printf("│");
       }
       console.printf("%n");
     }
