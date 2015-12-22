@@ -5,7 +5,7 @@ import java.util.Set;
 
 public interface Board {
   public static interface Square {
-    public static enum Basic implements Square {
+    static enum Basic implements Square {
       MINE, UNKNOWN;
 
       @Override
@@ -29,7 +29,7 @@ public interface Board {
       }
     }
 
-    public static class Number implements Square {
+    static class Number implements Square {
       private final int number;
 
       public Number(int number) {

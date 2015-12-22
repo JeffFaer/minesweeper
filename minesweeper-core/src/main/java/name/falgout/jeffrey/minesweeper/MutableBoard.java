@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.util.Set;
 import java.util.function.Function;
 
-public class MutableBoard implements Board {
+class MutableBoard implements Board {
   private final Square[][] board;
   private final Function<Point, Set<Point>> neighbors;
 

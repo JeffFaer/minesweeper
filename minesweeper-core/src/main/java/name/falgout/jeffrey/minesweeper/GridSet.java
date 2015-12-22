@@ -3,7 +3,9 @@ package name.falgout.jeffrey.minesweeper;
 import java.awt.Point;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.Spliterator;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 class GridSet extends AbstractSet<Point> {
   private final int numRows;
@@ -29,13 +31,23 @@ class GridSet extends AbstractSet<Point> {
   }
 
   @Override
-  public Iterator<Point> iterator() {
-    return IntStream.range(0, numRows).boxed().<Point> flatMap(
-        row -> IntStream.range(0, numCols).mapToObj(col -> new Point(row, col))).iterator();
+  public int size() {
+    return numRows * numCols;
   }
 
   @Override
-  public int size() {
-    return numRows * numCols;
+  public Stream<Point> stream() {
+    return IntStream.range(0, numRows).boxed().<Point> flatMap(
+        row -> IntStream.range(0, numCols).mapToObj(col -> new Point(row, col)));
+  }
+
+  @Override
+  public Spliterator<Point> spliterator() {
+    return stream().spliterator();
+  }
+
+  @Override
+  public Iterator<Point> iterator() {
+    return stream().iterator();
   }
 }

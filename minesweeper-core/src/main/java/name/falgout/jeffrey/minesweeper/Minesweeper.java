@@ -2,6 +2,7 @@ package name.falgout.jeffrey.minesweeper;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -26,6 +27,8 @@ public class Minesweeper extends GameState<Point> {
   private final int numMines;
   private final Random random;
 
+  private int numRevealed = 0;
+
   public Minesweeper(int numRows, int numCols, int numMines) {
     this(numRows, numCols, numMines, NeighborFunction.CIRCLE);
   }
@@ -37,7 +40,7 @@ public class Minesweeper extends GameState<Point> {
   public Minesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed) {
     master = new MutableBoard(numRows, numCols, neighbors);
     player = new MutableBoard(numRows, numCols, neighbors);
-    
+
     for (Point p : player.getValidIndexes()) {
       player.setSquare(p, Square.Basic.UNKNOWN);
     }
@@ -67,24 +70,23 @@ public class Minesweeper extends GameState<Point> {
 
   @Override
   protected GameState<Point> updateState(Point transition) {
-    if (reveal(transition).get(transition).isMine()) {
+    if (master.getSquare(0, 0) == null) {
+      generateBoard(transition);
+    }
+
+    boolean revealedMine = reveal(transition);
+    if (revealedMine) {
       return GameOver.lose();
+    } else if (numRevealed + numMines == master.getValidIndexes().size()) {
+      return GameOver.win();
     } else {
-      // TODO win condition
       return this;
     }
   }
 
-  private Map<Point, Square> reveal(Point p) {
-    if (master.getSquare(0, 0) == null) {
-      generateBoard(p);
-    }
-
+  private boolean reveal(Point... p) {
     Map<Point, Square> revealed = new LinkedHashMap<>();
-    revealed.put(p, master.getSquare(p));
-
-    Queue<Point> reveal = new LinkedList<>();
-    reveal.add(p);
+    Queue<Point> reveal = new LinkedList<>(Arrays.asList(p));
     do {
       Point revealPoint = reveal.poll();
       Square s = master.getSquare(revealPoint);
@@ -99,7 +101,18 @@ public class Minesweeper extends GameState<Point> {
       }
     } while (!reveal.isEmpty());
 
-    return revealed;
+    numRevealed += revealed.size();
+    return revealedMine(revealed, p);
+  }
+
+  private boolean revealedMine(Map<Point, Square> revealed, Point... keys) {
+    for (Point k : keys) {
+      if (revealed.containsKey(k) && revealed.get(k).isMine()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private void generateBoard(Point p) {
