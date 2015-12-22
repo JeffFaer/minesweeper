@@ -8,6 +8,9 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>minesweeper-cli</artifactId>
+	<properties>
+		<mainClass>name.falgout.jeffrey.minesweeper.Main</mainClass>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>name.falgout.jeffrey</groupId>
@@ -15,8 +18,20 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>${mainClass}</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -26,7 +41,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>name.falgout.jeffrey.minesweeper.Main</mainClass>
+							<mainClass>${mainClass}</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
