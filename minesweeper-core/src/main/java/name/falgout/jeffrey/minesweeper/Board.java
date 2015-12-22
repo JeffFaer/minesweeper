@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 public interface Board {
   public static interface Square {
-    static enum Basic implements Square {
+    public static enum Basic implements Square {
       MINE, UNKNOWN;
 
       @Override
@@ -31,7 +31,7 @@ public interface Board {
       }
     }
 
-    static class Number implements Square {
+    public static class Number implements Square {
       private final int number;
 
       public Number(int number) {
