@@ -1,7 +1,8 @@
 package name.falgout.jeffrey.minesweeper;
 
+import static java.util.stream.Collectors.toList;
+
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -12,6 +13,7 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import name.falgout.jeffrey.minesweeper.Board.Square;
 
@@ -41,9 +43,9 @@ public class Minesweeper extends GameState<Point> {
     master = new MutableBoard(numRows, numCols, neighbors);
     player = new MutableBoard(numRows, numCols, neighbors);
 
-    for (Point p : player.getValidIndexes()) {
+    player.getValidIndexes().forEach(p -> {
       player.setSquare(p, Square.Basic.UNKNOWN);
-    }
+    });
 
     this.numMines = numMines;
     random = new Random(seed);
@@ -54,8 +56,13 @@ public class Minesweeper extends GameState<Point> {
   }
 
   @Override
-  public Set<Point> getTransitions() {
-    return master.getValidIndexes();
+  public Stream<Point> getTransitions() {
+    return master.getValidIndexes().filter(this::isValid);
+  }
+
+  @Override
+  public boolean isValid(Point transition) {
+    return !player.getSquare(transition).isRevealed();
   }
 
   @Override
@@ -77,7 +84,7 @@ public class Minesweeper extends GameState<Point> {
     boolean revealedMine = reveal(transition);
     if (revealedMine) {
       return GameOver.lose();
-    } else if (numRevealed + numMines == master.getValidIndexes().size()) {
+    } else if (numRevealed + numMines == master.size()) {
       return GameOver.win();
     } else {
       return this;
@@ -116,7 +123,7 @@ public class Minesweeper extends GameState<Point> {
   }
 
   private void generateBoard(Point p) {
-    List<Point> points = new ArrayList<>(master.getValidIndexes());
+    List<Point> points = master.getValidIndexes().collect(toList());
     points.remove(p);
     points.removeAll(master.getNeighbors(p));
     Collections.shuffle(points, random);

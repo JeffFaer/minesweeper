@@ -1,7 +1,6 @@
 package name.falgout.jeffrey.minesweeper;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.stream.Stream;
 
 public class GameOver<T> extends GameState<T> {
   private final boolean win;
@@ -11,8 +10,8 @@ public class GameOver<T> extends GameState<T> {
   }
 
   @Override
-  public Set<T> getTransitions() {
-    return Collections.emptySet();
+  public Stream<T> getTransitions() {
+    return Stream.empty();
   }
 
   @Override

@@ -28,11 +28,6 @@ class MutableBoard implements Board {
   }
 
   @Override
-  public Set<Point> getValidIndexes() {
-    return indexes;
-  }
-
-  @Override
   public Square getSquare(int i, int j) {
     return board[i][j];
   }

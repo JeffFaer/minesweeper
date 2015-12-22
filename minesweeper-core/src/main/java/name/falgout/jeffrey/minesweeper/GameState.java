@@ -1,14 +1,14 @@
 package name.falgout.jeffrey.minesweeper;
 
-import java.util.Set;
+import java.util.stream.Stream;
 
 public abstract class GameState<T> {
   protected GameState() {}
 
-  public abstract Set<T> getTransitions();
+  public abstract Stream<T> getTransitions();
 
   public boolean isTerminal() {
-    return getTransitions().isEmpty();
+    return getTransitions().count() == 0;
   }
 
   public abstract boolean isWon();
@@ -16,7 +16,7 @@ public abstract class GameState<T> {
   public abstract boolean isLost();
 
   public boolean isValid(T transition) {
-    return getTransitions().contains(transition);
+    return getTransitions().filter(transition::equals).findAny().isPresent();
   }
 
   public GameState<T> transition(T transition) {

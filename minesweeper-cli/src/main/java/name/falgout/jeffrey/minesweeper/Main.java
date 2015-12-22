@@ -38,7 +38,11 @@ public class Main implements Runnable {
       parts = line.split(",");
       int row = Integer.parseInt(parts[0].trim()) - 1;
       int col = Integer.parseInt(parts[1].trim()) - 1;
-      state = state.transition(new Point(row, col));
+      try {
+        state = state.transition(new Point(row, col));
+      } catch (IllegalStateException e) {
+        console.printf("Illegal move. Try again.%n");
+      }
     } while (!state.isTerminal());
 
     drawBoard(view);
@@ -46,6 +50,7 @@ public class Main implements Runnable {
       console.printf("You won!%n");
     } else {
       console.printf("You lost!%n");
+      System.exit(1);
     }
   }
 
