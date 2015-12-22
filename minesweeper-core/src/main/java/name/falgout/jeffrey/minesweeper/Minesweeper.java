@@ -77,7 +77,7 @@ public class Minesweeper extends GameState<Transition> {
       generateBoard(p);
     }
 
-    return reveal(p);
+    return nextState(reveal(p), p);
   }
 
   private void generateBoard(Point p) {
@@ -102,7 +102,7 @@ public class Minesweeper extends GameState<Transition> {
     }
   }
 
-  protected GameState<Transition> reveal(Point... p) {
+  protected Map<Point, Square> reveal(Point... p) {
     Map<Point, Square> revealed = new LinkedHashMap<>();
     Queue<Point> reveal = new LinkedList<>(Arrays.asList(p));
     do {
@@ -120,7 +120,10 @@ public class Minesweeper extends GameState<Transition> {
     } while (!reveal.isEmpty());
 
     numRevealed += revealed.size();
-    
+    return revealed;
+  }
+  
+  protected GameState<Transition> nextState(Map<Point, Square> revealed, Point... p) {
     if (revealedMine(revealed, p)) {
       return GameOver.loss();
     } else if (numRevealed + numMines == master.size()) {

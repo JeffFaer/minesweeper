@@ -1,6 +1,8 @@
 package name.falgout.jeffrey.minesweeper;
 
 import java.awt.Point;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -42,20 +44,45 @@ public class FlagMinesweeper extends Minesweeper {
     return new Transition(ExtraAction.FLAG, p);
   }
 
+  private final boolean countDown;
+
   public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed) {
-    super(numRows, numCols, numMines, neighbors, seed);
+    this(numRows, numCols, numMines, neighbors, seed, false);
   }
 
   public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, Random random) {
-    super(numRows, numCols, numMines, neighbors, random);
+    this(numRows, numCols, numMines, neighbors, random, false);
   }
 
   public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors) {
-    super(numRows, numCols, numMines, neighbors);
+    this(numRows, numCols, numMines, neighbors, false);
   }
 
   public FlagMinesweeper(int numRows, int numCols, int numMines) {
+    this(numRows, numCols, numMines, false);
+  }
+
+  public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, Random random,
+      boolean countDown) {
+    super(numRows, numCols, numMines, neighbors, random);
+    this.countDown = countDown;
+  }
+
+  public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed,
+      boolean countDown) {
+    super(numRows, numCols, numMines, neighbors, seed);
+    this.countDown = countDown;
+  }
+
+  public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors,
+      boolean countDown) {
+    super(numRows, numCols, numMines, neighbors);
+    this.countDown = countDown;
+  }
+
+  public FlagMinesweeper(int numRows, int numCols, int numMines, boolean countDown) {
     super(numRows, numCols, numMines);
+    this.countDown = countDown;
   }
 
   @Override
@@ -94,19 +121,44 @@ public class FlagMinesweeper extends Minesweeper {
     Square s = getBoard().getSquare(p);
     if (!s.isNumber()) {
       return false;
-    } else if (s.getNumber() == 0) {
-      return false;
     }
 
-    Set<Point> neighbors = getBoard().getNeighbors(p);
-    int numFlags = 0;
-    for (Point neighbor : neighbors) {
-      if (getBoard().getSquare(neighbor) == ExtraSquare.FLAG) {
-        numFlags++;
+    if (countDown) {
+      return s.getNumber() == 0;
+    } else {
+      Set<Point> neighbors = getBoard().getNeighbors(p);
+      int numFlags = 0;
+      for (Point neighbor : neighbors) {
+        if (getBoard().getSquare(neighbor) == ExtraSquare.FLAG) {
+          numFlags++;
+          if (numFlags > s.getNumber()) {
+            return false;
+          }
+        }
+      }
+
+      return numFlags == s.getNumber();
+    }
+  }
+
+  @Override
+  protected Map<Point, Square> reveal(Point... p) {
+    Map<Point, Square> revealed = super.reveal(p);
+
+    if (countDown) {
+      for (Entry<Point, Square> e : revealed.entrySet()) {
+        if (e.getValue().isNumber()) {
+          int numFlags = (int) getBoard().getNeighbors(e.getKey()).stream().filter(this::isFlag).count();
+          if (numFlags > 0) {
+            Square newNumber = new Square.Number(e.getValue().getNumber() - numFlags);
+            player.setSquare(e.getKey(), newNumber);
+            e.setValue(newNumber);
+          }
+        }
       }
     }
 
-    return s.getNumber() == numFlags;
+    return revealed;
   }
 
   @Override
@@ -114,10 +166,23 @@ public class FlagMinesweeper extends Minesweeper {
     Point p = transition.getPoint();
     if (transition.getAction() == ExtraAction.FLAG) {
       Square s = getBoard().getSquare(p);
+      int delta;
       if (s == ExtraSquare.FLAG) {
         player.setSquare(p, Square.Basic.UNKNOWN);
+        delta = +1;
       } else {
         player.setSquare(p, ExtraSquare.FLAG);
+        delta = -1;
+      }
+
+      if (countDown) {
+        for (Point neighbor : getBoard().getNeighbors(p)) {
+          Square neighborSquare = getBoard().getSquare(neighbor);
+          if (neighborSquare.isNumber()) {
+            Square newNumber = new Square.Number(neighborSquare.getNumber() + delta);
+            player.setSquare(neighbor, newNumber);
+          }
+        }
       }
 
       return this;
@@ -127,7 +192,7 @@ public class FlagMinesweeper extends Minesweeper {
         // Flip neighbors since it has enough flags.
         Set<Point> neighbors = getBoard().getNeighbors(p);
         neighbors.removeIf(this::isFlag);
-        return reveal(neighbors.toArray(new Point[neighbors.size()]));
+        return nextState(reveal(neighbors.toArray(new Point[neighbors.size()])));
       } else {
         return super.updateState(transition);
       }
