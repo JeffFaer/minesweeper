@@ -40,6 +40,10 @@ public class Minesweeper extends GameState<Point> {
   }
 
   public Minesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed) {
+    this(numRows, numCols, numMines, neighbors, new Random(seed));
+  }
+
+  public Minesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, Random random) {
     master = new MutableBoard(numRows, numCols, neighbors);
     player = new MutableBoard(numRows, numCols, neighbors);
 
@@ -48,7 +52,7 @@ public class Minesweeper extends GameState<Point> {
     });
 
     this.numMines = numMines;
-    random = new Random(seed);
+    this.random = random;
   }
 
   public Board getBoard() {

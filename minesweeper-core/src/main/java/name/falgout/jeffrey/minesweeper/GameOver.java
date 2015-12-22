@@ -21,7 +21,7 @@ public class GameOver<T> extends GameState<T> {
 
   @Override
   public boolean isLost() {
-    return win;
+    return !win;
   }
 
   @Override
