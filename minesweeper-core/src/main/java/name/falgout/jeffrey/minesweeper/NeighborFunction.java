@@ -26,11 +26,29 @@ public enum NeighborFunction implements Function<Point, Set<Point>> {
       neighbors.add(new Point(t.x + 1, t.y + 1));
       neighbors.add(new Point(t.x + 1, t.y - 1));
       neighbors.add(new Point(t.x - 1, t.y + 1));
-      
+
       return neighbors;
     }
   };
 
   @Override
   public abstract Set<Point> apply(Point t);
+
+  public static Function<Point, Set<Point>> wrapAround(Function<Point, Set<Point>> neighborFunction, int numRows,
+      int numColumns) {
+    return neighborFunction.andThen(neighbors -> {
+      for (Point neighbor : neighbors) {
+        if (neighbor.x < 0) {
+          neighbor.x %= numRows;
+          neighbor.x += numRows;
+        }
+        if (neighbor.y < 0) {
+          neighbor.y %= numColumns;
+          neighbor.y += numColumns;
+        }
+      }
+
+      return neighbors;
+    });
+  }
 }
