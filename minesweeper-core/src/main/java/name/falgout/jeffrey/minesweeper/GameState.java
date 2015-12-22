@@ -7,7 +7,7 @@ public abstract class GameState<T> {
 
   public abstract Set<T> getTransitions();
 
-  public boolean isComplete() {
+  public boolean isTerminal() {
     return getTransitions().isEmpty();
   }
 

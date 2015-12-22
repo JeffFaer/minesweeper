@@ -3,9 +3,7 @@ package name.falgout.jeffrey.minesweeper;
 import java.awt.Point;
 import java.io.Console;
 
-import name.falgout.jeffrey.minesweeper.Minesweeper.Board;
-import name.falgout.jeffrey.minesweeper.Minesweeper.MasterBoard;
-import name.falgout.jeffrey.minesweeper.Minesweeper.MasterBoard.Square;
+import name.falgout.jeffrey.minesweeper.Board.Square;
 
 public class Main implements Runnable {
   public static void main(String[] args) {
@@ -30,9 +28,9 @@ public class Main implements Runnable {
       f = NeighborFunction.values()[Integer.parseInt(parts[3].trim())];
     }
 
-    MasterBoard board = new MasterBoard(numRows, numCols, numMines, f);
-    GameState<Point> state = new Minesweeper(board);
-    Board view = board.getPlayerBoard();
+    Minesweeper m = new Minesweeper(numRows, numCols, numMines, f);
+    GameState<Point> state = m;
+    Board view = m.getBoard();
     do {
       drawBoard(view);
 
@@ -41,7 +39,7 @@ public class Main implements Runnable {
       int row = Integer.parseInt(parts[0].trim()) - 1;
       int col = Integer.parseInt(parts[1].trim()) - 1;
       state = state.transition(new Point(row, col));
-    } while (!state.isComplete());
+    } while (!state.isTerminal());
 
     drawBoard(view);
     if (state.isWon()) {
@@ -57,7 +55,7 @@ public class Main implements Runnable {
       console.printf(" %d", col + 1);
     }
     console.printf("%n");
-    
+
     // 0th header
     console.printf(" ┌");
     for (int col = 0; col < view.getNumColumns() - 1; col++) {

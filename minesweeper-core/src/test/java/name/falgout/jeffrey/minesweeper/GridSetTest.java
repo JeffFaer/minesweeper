@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class GridSetTest {
 
-  Minesweeper.GridSet grid = new Minesweeper.GridSet(4, 3);
+  GridSet grid = new GridSet(4, 3);
 
   @Test
   public void gridSetHasSquareSize() {
