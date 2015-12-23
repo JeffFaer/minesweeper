@@ -9,9 +9,21 @@
     </parent>
     <artifactId>minesweeper-cli</artifactId>
     <properties>
-        <mainClass>name.falgout.jeffrey.minesweeper.ConsoleRunner</mainClass>
+        <mainClass>name.falgout.jeffrey.minesweeper.cli.ConsoleRunner</mainClass>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>name.falgout.jeffrey</groupId>
+            <artifactId>minesweeper-util</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>name.falgout.jeffrey</groupId>
+            <artifactId>minesweeper-util</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>name.falgout.jeffrey</groupId>
             <artifactId>minesweeper-core</artifactId>
@@ -23,13 +35,8 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-        <dependency>
-            <groupId>name.falgout.jeffrey</groupId>
-            <artifactId>minesweeper-util</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
 
+    </dependencies>
     <build>
         <plugins>
             <plugin>

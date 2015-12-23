@@ -1,4 +1,4 @@
-package name.falgout.jeffrey.minesweeper;
+package name.falgout.jeffrey.minesweeper.cli;
 
 import java.io.BufferedReader;
 import java.io.IOError;

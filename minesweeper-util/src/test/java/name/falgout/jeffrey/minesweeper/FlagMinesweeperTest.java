@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.awt.Point;
 
 import name.falgout.jeffrey.minesweeper.Board.Square;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeper.ExtraAction;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper.ExtraSquare;
 
 import org.junit.Before;
@@ -16,7 +17,7 @@ import org.junit.Test;
 public class FlagMinesweeperTest extends MinesweeperTest {
   /**
    * First move new Point(1,1):
-   * 
+   *
    * <pre>
    *   0 1 2 3 4
    *  ┌─┬─┬─┬─┬─┐
@@ -31,7 +32,7 @@ public class FlagMinesweeperTest extends MinesweeperTest {
    * 4│ │ │ │ │ │
    *  └─┴─┴─┴─┴─┘
    * </pre>
-   * 
+   *
    * <pre>
    *   0 1 2 3 4
    *  ┌─┬─┬─┬─┬─┐
@@ -49,6 +50,10 @@ public class FlagMinesweeperTest extends MinesweeperTest {
    */
 
   public static FlagMinesweeper createMinesweeperGame() {
+    return createMinesweeperGame(true);
+  }
+
+  public static FlagMinesweeper createMinesweeperGame(boolean firstMove) {
     return createMinesweeperGame(true, false);
   }
 
@@ -74,10 +79,10 @@ public class FlagMinesweeperTest extends MinesweeperTest {
     Square original = board.getSquare(p);
     assertEquals(Square.Basic.UNKNOWN, original);
 
-    minesweeper.transition(FlagMinesweeper.flag(p));
+    minesweeper.transition(ExtraAction.flag(p));
     assertEquals(ExtraSquare.FLAG, board.getSquare(p));
 
-    minesweeper.transition(FlagMinesweeper.flag(p));
+    minesweeper.transition(ExtraAction.flag(p));
     assertEquals(original, board.getSquare(p));
   }
 
@@ -86,9 +91,9 @@ public class FlagMinesweeperTest extends MinesweeperTest {
     Transition reveal = Transition.reveal(new Point(1, 2));
     assertFalse(minesweeper.isValid(reveal));
 
-    minesweeper.transition(FlagMinesweeper.flag(new Point(0, 3)));
+    minesweeper.transition(ExtraAction.flag(new Point(0, 3)));
     assertFalse(minesweeper.isValid(reveal));
-    minesweeper.transition(FlagMinesweeper.flag(new Point(1, 3)));
+    minesweeper.transition(ExtraAction.flag(new Point(1, 3)));
 
     assertTrue(minesweeper.isValid(reveal));
     Point p = new Point(2, 3);
@@ -103,9 +108,9 @@ public class FlagMinesweeperTest extends MinesweeperTest {
     Point p = new Point(1, 2);
     assertEquals(2, board.getSquare(p).getNumber());
 
-    minesweeper.transition(FlagMinesweeper.flag(new Point(0, 3)));
+    minesweeper.transition(ExtraAction.flag(new Point(0, 3)));
     assertEquals(1, board.getSquare(p).getNumber());
-    minesweeper.transition(FlagMinesweeper.flag(new Point(1, 3)));
+    minesweeper.transition(ExtraAction.flag(new Point(1, 3)));
     assertEquals(0, board.getSquare(p).getNumber());
 
     Point p2 = new Point(2, 3);

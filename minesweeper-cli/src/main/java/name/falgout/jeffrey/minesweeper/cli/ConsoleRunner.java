@@ -1,4 +1,4 @@
-package name.falgout.jeffrey.minesweeper;
+package name.falgout.jeffrey.minesweeper.cli;
 
 import java.awt.Point;
 import java.util.Set;
@@ -6,8 +6,13 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import name.falgout.jeffrey.minesweeper.Board;
 import name.falgout.jeffrey.minesweeper.Board.Square;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper.ExtraSquare;
+import name.falgout.jeffrey.minesweeper.GameState;
+import name.falgout.jeffrey.minesweeper.NeighborFunction;
+import name.falgout.jeffrey.minesweeper.Transition;
 
 public class ConsoleRunner {
   public static void main(String[] args) {
@@ -29,13 +34,13 @@ public class ConsoleRunner {
   }
 
   private final Console console;
-  private final Minesweeper game;
+  private final FlagMinesweeper game;
 
-  public ConsoleRunner(Minesweeper game) {
+  public ConsoleRunner(FlagMinesweeper game) {
     this(Console.standardConsole(), game);
   }
 
-  public ConsoleRunner(Console console, Minesweeper game) {
+  public ConsoleRunner(Console console, FlagMinesweeper game) {
     this.console = console;
     this.game = game;
   }
@@ -54,9 +59,12 @@ public class ConsoleRunner {
         int row = Integer.parseInt(m.group("row")) - 1;
         int col = Integer.parseInt(m.group("col")) - 1;
         Point p = new Point(row, col);
-        Transition t = flag ? FlagMinesweeper.flag(p) : Transition.reveal(p);
         try {
-          state = state.transition(t);
+          if (flag) {
+            state = game.flag(p);
+          } else {
+            state = game.reveal(p);
+          }
         } catch (IllegalStateException e) {
           console.printf("Illegal move. Try again.%n");
         }

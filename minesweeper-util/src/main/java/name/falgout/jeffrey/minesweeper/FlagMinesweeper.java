@@ -1,6 +1,7 @@
 package name.falgout.jeffrey.minesweeper;
 
 import java.awt.Point;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -14,6 +15,10 @@ import name.falgout.jeffrey.minesweeper.Transition.Action;
 public class FlagMinesweeper extends Minesweeper {
   public static enum ExtraAction implements Action {
     FLAG;
+
+    public static Transition flag(Point p) {
+      return new Transition(FLAG, p);
+    }
   }
 
   public static enum ExtraSquare implements Square {
@@ -40,10 +45,6 @@ public class FlagMinesweeper extends Minesweeper {
     }
   }
 
-  public static Transition flag(Point p) {
-    return new Transition(ExtraAction.FLAG, p);
-  }
-
   private final boolean countDown;
 
   public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed) {
@@ -60,6 +61,33 @@ public class FlagMinesweeper extends Minesweeper {
 
   public FlagMinesweeper(int numRows, int numCols, int numMines) {
     this(numRows, numCols, numMines, false);
+  }
+
+  public FlagMinesweeper(MutableBoard player, int numMines, long seed) {
+    this(player, numMines, seed, false);
+  }
+
+  public FlagMinesweeper(MutableBoard player, int numMines, Random random) {
+    this(player, numMines, random, false);
+  }
+
+  public FlagMinesweeper(MutableBoard player, int numMines) {
+    this(player, numMines, false);
+  }
+
+  public FlagMinesweeper(MutableBoard player, int numMines, Random random, boolean countDown) {
+    super(player, numMines, random);
+    this.countDown = countDown;
+  }
+
+  public FlagMinesweeper(MutableBoard player, int numMines, long seed, boolean countDown) {
+    super(player, numMines, seed);
+    this.countDown = countDown;
+  }
+
+  public FlagMinesweeper(MutableBoard player, int numMines, boolean countDown) {
+    super(player, numMines);
+    this.countDown = countDown;
   }
 
   public FlagMinesweeper(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, Random random,
@@ -87,7 +115,7 @@ public class FlagMinesweeper extends Minesweeper {
 
   @Override
   public Stream<Transition> getTransitions() {
-    Stream<Transition> flags = getBoard().getValidIndexes().map(FlagMinesweeper::flag);
+    Stream<Transition> flags = getBoard().getValidIndexes().map(ExtraAction::flag);
     Stream<Transition> reveals = getBoard().getValidIndexes().map(Transition::reveal);
 
     return Stream.concat(flags, reveals).filter(this::isValid);
@@ -103,7 +131,7 @@ public class FlagMinesweeper extends Minesweeper {
       // Reveal a single square from the game that isn't a flag.
       // or
       // If the given square has enough flags, reveal its neighbors.
-      return (!isFlag(p) && super.isValid(transition)) || hasEnoughFlags(p);
+      return (!isFlag(p) && super.isValid(transition)) || (isNumber(p) && hasEnoughFlags(p));
     } else {
       return false;
     }
@@ -117,11 +145,12 @@ public class FlagMinesweeper extends Minesweeper {
     return getBoard().getSquare(p) == ExtraSquare.FLAG;
   }
 
+  private boolean isNumber(Point p) {
+    return getBoard().getSquare(p).isNumber();
+  }
+
   private boolean hasEnoughFlags(Point p) {
     Square s = getBoard().getSquare(p);
-    if (!s.isNumber()) {
-      return false;
-    }
 
     if (countDown) {
       return s.getNumber() == 0;
@@ -143,9 +172,39 @@ public class FlagMinesweeper extends Minesweeper {
     }
   }
 
+  public GameState<Transition> flag(Point p) {
+    return transition(ExtraAction.flag(p));
+  }
+
   @Override
-  protected Map<Point, Square> reveal(Point... p) {
-    Map<Point, Square> revealed = super.reveal(p);
+  protected GameState<Transition> updateState(Transition transition) {
+    Point p = transition.getPoint();
+    if (transition.getAction() == ExtraAction.FLAG) {
+      toggleFlag(p);
+      return this;
+    } else if (transition.getAction() == Action.Basic.REVEAL) {
+      return super.updateState(transition);
+    } else {
+      throw new Error("Invalid transition.");
+    }
+  }
+
+  @Override
+  protected Map<Point, Square> doReveal(Point p) {
+    Square s = getBoard().getSquare(p);
+    Map<Point, Square> revealed;
+    if (s.isNumber()) {
+      // Flip neighbors since it has enough flags.
+      Set<Point> neighbors = getBoard().getNeighbors(p);
+      neighbors.removeIf(this::isFlag);
+
+      revealed = new LinkedHashMap<>(neighbors.size());
+      for (Point neighbor : neighbors) {
+        revealed.putAll(super.doReveal(neighbor));
+      }
+    } else {
+      revealed = super.doReveal(p);
+    }
 
     if (countDown) {
       for (Entry<Point, Square> e : revealed.entrySet()) {
@@ -163,43 +222,25 @@ public class FlagMinesweeper extends Minesweeper {
     return revealed;
   }
 
-  @Override
-  protected GameState<Transition> updateState(Transition transition) {
-    Point p = transition.getPoint();
-    if (transition.getAction() == ExtraAction.FLAG) {
-      Square s = getBoard().getSquare(p);
-      int delta;
-      if (s == ExtraSquare.FLAG) {
-        player.setSquare(p, Square.Basic.UNKNOWN);
-        delta = +1;
-      } else {
-        player.setSquare(p, ExtraSquare.FLAG);
-        delta = -1;
-      }
+  protected void toggleFlag(Point p) {
+    Square s = getBoard().getSquare(p);
+    int delta;
+    if (s == ExtraSquare.FLAG) {
+      player.setSquare(p, Square.Basic.UNKNOWN);
+      delta = +1;
+    } else {
+      player.setSquare(p, ExtraSquare.FLAG);
+      delta = -1;
+    }
 
-      if (countDown) {
-        for (Point neighbor : getBoard().getNeighbors(p)) {
-          Square neighborSquare = getBoard().getSquare(neighbor);
-          if (neighborSquare.isNumber()) {
-            Square newNumber = new Square.Number(neighborSquare.getNumber() + delta);
-            player.setSquare(neighbor, newNumber);
-          }
+    if (countDown) {
+      for (Point neighbor : getBoard().getNeighbors(p)) {
+        Square neighborSquare = getBoard().getSquare(neighbor);
+        if (neighborSquare.isNumber()) {
+          Square newNumber = new Square.Number(neighborSquare.getNumber() + delta);
+          player.setSquare(neighbor, newNumber);
         }
       }
-
-      return this;
-    } else if (transition.getAction() == Action.Basic.REVEAL) {
-      Square s = getBoard().getSquare(p);
-      if (s.isNumber()) {
-        // Flip neighbors since it has enough flags.
-        Set<Point> neighbors = getBoard().getNeighbors(p);
-        neighbors.removeIf(this::isFlag);
-        return nextState(reveal(neighbors.toArray(new Point[neighbors.size()])));
-      } else {
-        return super.updateState(transition);
-      }
-    } else {
-      throw new Error("Invalid transition.");
     }
   }
 }

@@ -1,4 +1,4 @@
-package name.falgout.jeffrey.minesweeper;
+package name.falgout.jeffrey.minesweeper.cli;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -12,13 +12,16 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeperTest;
+
 import org.junit.Before;
 import org.junit.Test;
 
 public class ConsoleRunnerTest {
   /**
    * First move new Point(1,1):
-   * 
+   *
    * <pre>
    *   1 2 3 4 5
    *  ┌─┬─┬─┬─┬─┐
@@ -33,7 +36,7 @@ public class ConsoleRunnerTest {
    * 5│ │ │ │ │ │
    *  └─┴─┴─┴─┴─┘
    * </pre>
-   * 
+   *
    * <pre>
    *   1 2 3 4 5
    *  ┌─┬─┬─┬─┬─┐
@@ -49,7 +52,7 @@ public class ConsoleRunnerTest {
    *  └─┴─┴─┴─┴─┘
    * </pre>
    */
-  private Minesweeper minesweeper;
+  private FlagMinesweeper minesweeper;
 
   private ConsoleRunner main;
   private PrintWriter cmd;
@@ -60,7 +63,7 @@ public class ConsoleRunnerTest {
     PipedWriter out = new PipedWriter(in);
     cmd = new PrintWriter(out);
 
-    minesweeper = MinesweeperTest.createMinesweeperGame(false);
+    minesweeper = FlagMinesweeperTest.createMinesweeperGame(false);
     main = new ConsoleRunner(Console.create(in, new OutputStreamWriter(System.out)), minesweeper);
   }
 
