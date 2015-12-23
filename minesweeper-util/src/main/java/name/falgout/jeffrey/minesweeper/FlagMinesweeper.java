@@ -123,41 +123,41 @@ public class FlagMinesweeper extends Minesweeper {
 
   @Override
   public boolean isValid(Transition transition) {
-    Point p = transition.getPoint();
+    Point point = transition.getPoint();
     if (transition.getAction() == ExtraAction.FLAG) {
       // Toggle a flag on a hidden square.
-      return isHidden(p);
+      return isHidden(point);
     } else if (transition.getAction() == Action.Basic.REVEAL) {
       // Reveal a single square from the game that isn't a flag.
       // or
       // If the given square has enough flags, reveal its neighbors.
-      return (!isFlag(p) && super.isValid(transition)) || (isNumber(p) && hasEnoughFlags(p));
+      return (!isFlag(point) && super.isValid(transition)) || (isNumber(point) && hasEnoughFlags(point));
     } else {
       return false;
     }
   }
 
-  private boolean isHidden(Point p) {
-    return !getBoard().getSquare(p).isRevealed();
+  private boolean isHidden(Point point) {
+    return !getBoard().getSquare(point).isRevealed();
   }
 
-  private boolean isFlag(Point p) {
-    return getBoard().getSquare(p) == ExtraSquare.FLAG;
+  private boolean isFlag(Point point) {
+    return getBoard().getSquare(point) == ExtraSquare.FLAG;
   }
 
-  private boolean isNumber(Point p) {
-    return getBoard().getSquare(p).isNumber();
+  private boolean isNumber(Point point) {
+    return getBoard().getSquare(point).isNumber();
   }
 
-  private boolean hasEnoughFlags(Point p) {
-    Square s = getBoard().getSquare(p);
+  private boolean hasEnoughFlags(Point point) {
+    Square s = getBoard().getSquare(point);
 
     if (countDown) {
       return s.getNumber() == 0;
     } else if (s.getNumber() == 0) {
       return false;
     } else {
-      Set<Point> neighbors = getBoard().getNeighbors(p);
+      Set<Point> neighbors = getBoard().getNeighbors(point);
       int numFlags = 0;
       for (Point neighbor : neighbors) {
         if (getBoard().getSquare(neighbor) == ExtraSquare.FLAG) {
@@ -172,15 +172,15 @@ public class FlagMinesweeper extends Minesweeper {
     }
   }
 
-  public GameState<Transition> flag(Point p) {
-    return transition(ExtraAction.flag(p));
+  public GameState<Transition> flag(Point point) {
+    return transition(ExtraAction.flag(point));
   }
 
   @Override
   protected GameState<Transition> updateState(Transition transition) {
-    Point p = transition.getPoint();
+    Point point = transition.getPoint();
     if (transition.getAction() == ExtraAction.FLAG) {
-      toggleFlag(p);
+      toggleFlag(point);
       return this;
     } else if (transition.getAction() == Action.Basic.REVEAL) {
       return super.updateState(transition);
@@ -190,12 +190,12 @@ public class FlagMinesweeper extends Minesweeper {
   }
 
   @Override
-  protected Map<Point, Square> doReveal(Point p) {
-    Square s = getBoard().getSquare(p);
+  protected Map<Point, Square> doReveal(Point point) {
+    Square s = getBoard().getSquare(point);
     Map<Point, Square> revealed;
     if (s.isNumber()) {
       // Flip neighbors since it has enough flags.
-      Set<Point> neighbors = getBoard().getNeighbors(p);
+      Set<Point> neighbors = getBoard().getNeighbors(point);
       neighbors.removeIf(this::isFlag);
 
       revealed = new LinkedHashMap<>(neighbors.size());
@@ -203,7 +203,7 @@ public class FlagMinesweeper extends Minesweeper {
         revealed.putAll(super.doReveal(neighbor));
       }
     } else {
-      revealed = super.doReveal(p);
+      revealed = super.doReveal(point);
     }
 
     if (countDown) {
@@ -222,19 +222,19 @@ public class FlagMinesweeper extends Minesweeper {
     return revealed;
   }
 
-  protected void toggleFlag(Point p) {
-    Square s = getBoard().getSquare(p);
+  protected void toggleFlag(Point point) {
+    Square s = getBoard().getSquare(point);
     int delta;
     if (s == ExtraSquare.FLAG) {
-      player.setSquare(p, Square.Basic.UNKNOWN);
+      player.setSquare(point, Square.Basic.UNKNOWN);
       delta = +1;
     } else {
-      player.setSquare(p, ExtraSquare.FLAG);
+      player.setSquare(point, ExtraSquare.FLAG);
       delta = -1;
     }
 
     if (countDown) {
-      for (Point neighbor : getBoard().getNeighbors(p)) {
+      for (Point neighbor : getBoard().getNeighbors(point)) {
         Square neighborSquare = getBoard().getSquare(neighbor);
         if (neighborSquare.isNumber()) {
           Square newNumber = new Square.Number(neighborSquare.getNumber() + delta);

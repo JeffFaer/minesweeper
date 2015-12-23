@@ -26,7 +26,7 @@ public class Minesweeper extends GameState<Transition> {
   private static final NeighborFunction DEFAULT_NEIGHBOR_FUNCTION = NeighborFunction.CIRCLE;
 
   private static MutableBoard createDefaultPlayerBoard(int numRows, int numCols, Function<Point, Set<Point>> neighbors) {
-    return new ArrayMutableBoard(numRows, numCols, neighbors);
+    return new ArrayBoard(numRows, numCols, neighbors);
   }
 
   private static long getDefaultSeed() {
@@ -70,7 +70,7 @@ public class Minesweeper extends GameState<Transition> {
   }
 
   public Minesweeper(MutableBoard player, int numMines, Random random) {
-    master = new ArrayMutableBoard(player.getNumRows(), player.getNumColumns(), player::getNeighbors);
+    master = new ArrayBoard(player.getNumRows(), player.getNumColumns(), player::getNeighbors);
     this.player = player;
 
     this.player.getValidIndexes().forEach(p -> {
@@ -95,24 +95,24 @@ public class Minesweeper extends GameState<Transition> {
     return transition.getAction() == Action.Basic.REVEAL && !player.getSquare(transition.getPoint()).isRevealed();
   }
 
-  public GameState<Transition> reveal(Point p) {
-    return transition(Transition.reveal(p));
+  public GameState<Transition> reveal(Point point) {
+    return transition(Transition.reveal(point));
   }
 
   @Override
   protected GameState<Transition> updateState(Transition transition) {
-    Point p = transition.getPoint();
+    Point point = transition.getPoint();
     if (master.getSquare(0, 0) == null) {
-      generateBoard(p);
+      generateBoard(point);
     }
 
-    return nextState(doReveal(p));
+    return nextState(doReveal(point));
   }
 
-  private void generateBoard(Point p) {
+  private void generateBoard(Point point) {
     List<Point> points = master.getValidIndexes().collect(toList());
-    points.remove(p);
-    points.removeAll(master.getNeighbors(p));
+    points.remove(point);
+    points.removeAll(master.getNeighbors(point));
     Collections.shuffle(points, random);
 
     for (int i = 0; i < numMines; i++) {
@@ -131,10 +131,10 @@ public class Minesweeper extends GameState<Transition> {
     }
   }
 
-  protected Map<Point, Square> doReveal(Point p) {
+  protected Map<Point, Square> doReveal(Point point) {
     Map<Point, Square> revealed = new LinkedHashMap<>();
     Queue<Point> reveal = new LinkedList<>();
-    reveal.add(p);
+    reveal.add(point);
 
     do {
       Point revealPoint = reveal.poll();

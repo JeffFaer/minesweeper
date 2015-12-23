@@ -85,11 +85,11 @@ public interface Board {
     return getSquare(point.x, point.y);
   }
 
-  public Square getSquare(int i, int j);
+  public Square getSquare(int row, int col);
 
-  public Set<Point> getNeighbors(Point p);
-
-  default Set<Point> getNeighbors(int i, int j) {
-    return getNeighbors(new Point(i, j));
+  default Set<Point> getNeighbors(Point point) {
+    return getNeighbors(point.x, point.y);
   }
+
+  public Set<Point> getNeighbors(int row, int col);
 }

@@ -12,13 +12,18 @@ public abstract class AbstractMutableBoard implements MutableBoard {
   }
 
   @Override
-  public Set<Point> getNeighbors(Point p) {
-    Set<Point> neighbors = this.neighbors.apply(p);
+  public Set<Point> getNeighbors(Point point) {
+    Set<Point> neighbors = this.neighbors.apply(point);
     neighbors.removeIf(pt -> !isValid(pt));
     return neighbors;
   }
 
-  protected boolean isValid(Point p) {
-    return 0 <= p.x && p.x < getNumRows() && 0 <= p.y && p.y < getNumColumns();
+  @Override
+  public Set<Point> getNeighbors(int row, int col) {
+    return getNeighbors(new Point(row, col));
+  }
+
+  protected boolean isValid(Point point) {
+    return 0 <= point.x && point.x < getNumRows() && 0 <= point.y && point.y < getNumColumns();
   }
 }
