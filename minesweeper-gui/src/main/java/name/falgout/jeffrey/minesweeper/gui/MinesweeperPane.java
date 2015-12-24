@@ -5,7 +5,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.PseudoClass;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -13,11 +21,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.util.Duration;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
 import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
+import name.falgout.jeffrey.minesweeper.gui.binding.DurationBinding;
 
 public class MinesweeperPane extends Pane {
   private static final PseudoClass REVEALED = PseudoClass.getPseudoClass("revealed");
@@ -26,19 +37,34 @@ public class MinesweeperPane extends Pane {
   private final Board board;
   private final FlagMinesweeper game;
 
+  private final ObjectProperty<Long> start = new SimpleObjectProperty<>();
+  private final LongProperty currentTime = new SimpleLongProperty();
+  private final Timeline clockUpdate;
+
   public MinesweeperPane(ObservableBoard board, int numMines, boolean countDown) {
     game = new FlagMinesweeper(new FlagMinesweeperState(board, numMines, countDown));
     this.board = board;
+
+    clockUpdate = new Timeline(new KeyFrame(Duration.millis(1), event -> {
+      currentTime.set(System.currentTimeMillis());
+    }));
+    clockUpdate.setCycleCount(Animation.INDEFINITE);
 
     board.updatedSquare().addListener((obs, oldValue, newValue) -> {
       updateButton(newValue.getKey(), newValue.getValue());
     });
 
     Label flagCount = new Label();
-    flagCount.textProperty().bind(board.numFlags().asString("%d/" + numMines));
+    flagCount.setFont(Font.font(25));
+    flagCount.textProperty().bind(board.numFlags().asString("Flags: %d/" + numMines));
 
-    HBox toolbar = new HBox();
-    toolbar.getChildren().add(flagCount);
+    Label elapsedTime = new Label();
+    elapsedTime.textProperty().bind(new DurationBinding(start, currentTime).asString("Time: %H:%M:%S"));
+    elapsedTime.fontProperty().bindBidirectional(flagCount.fontProperty());
+
+    HBox toolbar = new HBox(15);
+    toolbar.setAlignment(Pos.CENTER_RIGHT);
+    toolbar.getChildren().addAll(flagCount, elapsedTime);
 
     GridPane grid = new GridPane();
     board.getValidIndexes().forEach(p -> {
@@ -55,8 +81,7 @@ public class MinesweeperPane extends Pane {
     });
 
     VBox vbox = new VBox();
-    vbox.getChildren().add(toolbar);
-    vbox.getChildren().add(grid);
+    vbox.getChildren().addAll(toolbar, grid);
 
     getChildren().add(vbox);
   }
@@ -111,6 +136,12 @@ public class MinesweeperPane extends Pane {
     try {
       switch (e.getButton()) {
       case PRIMARY:
+        if (start.get() == null) {
+          start.set(System.currentTimeMillis());
+          currentTime.set(start.get());
+          clockUpdate.play();
+        }
+
         game.reveal(p);
         checkEnd();
         break;
@@ -127,10 +158,14 @@ public class MinesweeperPane extends Pane {
   }
 
   private void checkEnd() {
-    if (game.isWin()) {
-      System.out.println("Win");
-    } else if (game.isLoss()) {
-      System.out.println("Lose");
+    if (game.isComplete()) {
+      clockUpdate.pause();
+
+      if (game.isWin()) {
+        System.out.println("Win");
+      } else if (game.isLoss()) {
+        System.out.println("Lose");
+      }
     }
   }
 }
