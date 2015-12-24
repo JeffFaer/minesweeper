@@ -10,7 +10,7 @@ public class DurationBinding extends ObjectBinding<Duration> {
   public static final String DHMS = "%D:%H:%M:%S";
   public static final String HMS = "%H:%M:%S";
   public static final String HMSL = "%H:%M:%S.%L";
-  
+
   private final ObservableValue<? extends Number> start;
   private final ObservableValue<? extends Number> end;
 
@@ -31,7 +31,7 @@ public class DurationBinding extends ObjectBinding<Duration> {
 
   @Override
   public StringBinding asString() {
-    return asString("%H:%M:%S");
+    return asString(HMS);
   }
 
   @Override
