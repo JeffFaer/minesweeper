@@ -4,14 +4,19 @@ import java.awt.Point;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.util.Pair;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 
 public class ObservableBoard implements MutableBoard {
   private final MutableBoard board;
-  private final SimpleObjectProperty<Pair<Point, Square>> updatedSquare = new SimpleObjectProperty<>();
+  private final ObjectProperty<Pair<Point, Square>> updatedSquare = new SimpleObjectProperty<>();
+  private final IntegerProperty numFlags = new SimpleIntegerProperty(0);
 
   public ObservableBoard(MutableBoard board) {
     this.board = board;
@@ -21,20 +26,34 @@ public class ObservableBoard implements MutableBoard {
     return updatedSquare;
   }
 
-  private void update(Point index, Square s) {
-    updatedSquare.set(new Pair<>(index, s));
+  public IntegerProperty numFlags() {
+    return numFlags;
+  }
+
+  private void update(Point index, Square oldSquare, Square newSquare) {
+    updatedSquare.set(new Pair<>(index, newSquare));
+    
+    boolean wasFlag = oldSquare == ExtraSquare.FLAG;
+    boolean isFlag = newSquare == ExtraSquare.FLAG;
+    if (wasFlag ^ isFlag) {
+      if (isFlag) {
+        numFlags.set(numFlags.get() + 1);
+      } else {
+        numFlags.set(numFlags.get() - 1);
+      }
+    }
   }
 
   @Override
   public void setSquare(Point point, Square s) {
+    Square old = getSquare(point);
     board.setSquare(point, s);
-    update(point, s);
+    update(point, old, s);
   }
 
   @Override
   public void setSquare(int row, int col, Square s) {
-    board.setSquare(row, col, s);
-    update(new Point(row, col), s);
+    setSquare(new Point(row, col), s);
   }
 
   @Override

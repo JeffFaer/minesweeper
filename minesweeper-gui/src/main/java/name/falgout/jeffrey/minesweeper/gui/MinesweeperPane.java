@@ -7,9 +7,12 @@ import java.util.Set;
 
 import javafx.css.PseudoClass;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
@@ -17,25 +20,32 @@ import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
 
 public class MinesweeperPane extends Pane {
-  private static final PseudoClass DEPRESSED = PseudoClass.getPseudoClass("depressed");
+  private static final PseudoClass REVEALED = PseudoClass.getPseudoClass("revealed");
 
   private final Map<Point, Button> buttons = new LinkedHashMap<>();
   private final Board board;
   private final FlagMinesweeper game;
 
-  public MinesweeperPane(ObservableBoard board, FlagMinesweeperState state) {
-    game = new FlagMinesweeper(state);
+  public MinesweeperPane(ObservableBoard board, int numMines, boolean countDown) {
+    game = new FlagMinesweeper(new FlagMinesweeperState(board, numMines, countDown));
     this.board = board;
+
     board.updatedSquare().addListener((obs, oldValue, newValue) -> {
       updateButton(newValue.getKey(), newValue.getValue());
     });
 
+    Label flagCount = new Label();
+    flagCount.textProperty().bind(board.numFlags().asString("%d/" + numMines));
+
+    HBox toolbar = new HBox();
+    toolbar.getChildren().add(flagCount);
+
     GridPane grid = new GridPane();
-    state.getBoard().getValidIndexes().forEach(p -> {
+    board.getValidIndexes().forEach(p -> {
       Button square = new Button();
 
       square.setFocusTraversable(false);
-      square.setPrefSize(30, 30);
+      square.setPrefSize(35, 35);
       square.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> armNeighbors(p, e));
       square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> disarmNeighbors(p, e));
       square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> updateGame(p, e));
@@ -44,20 +54,29 @@ public class MinesweeperPane extends Pane {
       buttons.put(p, square);
     });
 
-    getChildren().add(grid);
+    VBox vbox = new VBox();
+    vbox.getChildren().add(toolbar);
+    vbox.getChildren().add(grid);
+
+    getChildren().add(vbox);
   }
 
   private void updateButton(Point p, Square s) {
     Button b = buttons.get(p);
     if (s.isRevealed()) {
-      b.pseudoClassStateChanged(DEPRESSED, true);
+      b.pseudoClassStateChanged(REVEALED, true);
     }
 
     b.getStyleClass().removeIf(c -> !"button".equals(c));
 
     if (s.isNumber()) {
       String number = "" + s.getNumber();
-      b.getStyleClass().add("_" + number);
+      if (s.getNumber() < 0) {
+        b.getStyleClass().add("negative");
+      } else {
+        b.getStyleClass().add("_" + number);
+      }
+
       b.setText(number);
     } else if (s.isMine()) {
       b.getStyleClass().add("mine");
@@ -104,7 +123,6 @@ public class MinesweeperPane extends Pane {
       }
     } catch (IllegalStateException ex) {
       ex.printStackTrace();
-      // Do nothing.
     }
   }
 

@@ -1,19 +1,24 @@
 .root {
-    -fx-color-depressed: derive(-fx-base, -30%);
+    -fx-color-revealed: derive(-fx-base, -30%);
 }
 
-.button:depressed {
-    -fx-background-color: derive(-fx-color-depressed, -15%), -fx-color-depressed;
+.button:revealed {
+    -fx-background-color: derive(-fx-color-revealed, -15%), -fx-color-revealed;
     -fx-background-insets: 0, 1;
     -fx-background-radius: 0;
 }
 
-.button:depressed:hover {
+.button:revealed:hover {
     -fx-color: -fx-base
 }
 
 .button:armed {
-    -fx-color: derive(-fx-color-depressed, +35%)
+    -fx-color: derive(-fx-color-revealed, +35%)
+}
+
+.button.negative {
+    -fx-font-weight: bolder;
+    -fx-text-fill: red;
 }
 
 .button._0 {
