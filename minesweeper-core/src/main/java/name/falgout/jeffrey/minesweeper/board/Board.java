@@ -2,6 +2,7 @@ package name.falgout.jeffrey.minesweeper.board;
 
 import java.awt.Point;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -92,4 +93,18 @@ public interface Board {
   }
 
   public Set<Point> getNeighbors(int row, int col);
+
+  default Set<Point> getNeighborsBySquare(Point point, Predicate<? super Square> test) {
+    return getNeighborsByPoint(point, (Point p) -> test.test(getSquare(p)));
+  }
+
+  default Set<Point> getNeighborsByPoint(Point point, Predicate<? super Point> test) {
+    Set<Point> neighbors = getNeighbors(point);
+    neighbors.removeIf(p -> !test.test(p));
+    return neighbors;
+  }
+
+  default Stream<Point> getSquares(Predicate<? super Square> test) {
+    return getValidIndexes().filter(p -> test.test(getSquare(p)));
+  }
 }

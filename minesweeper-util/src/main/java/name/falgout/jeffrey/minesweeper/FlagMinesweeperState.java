@@ -214,7 +214,7 @@ public class FlagMinesweeperState extends MinesweeperState {
           int numFlags = (int) getBoard().getNeighbors(e.getKey()).stream().filter(this::isFlag).count();
           if (numFlags > 0) {
             Square newNumber = new Square.Number(e.getValue().getNumber() - numFlags);
-            player.setSquare(e.getKey(), newNumber);
+            board.setSquare(e.getKey(), newNumber);
             e.setValue(newNumber);
           }
         }
@@ -228,10 +228,10 @@ public class FlagMinesweeperState extends MinesweeperState {
     Square s = getBoard().getSquare(point);
     int delta;
     if (s == ExtraSquare.FLAG) {
-      player.setSquare(point, Square.Basic.UNKNOWN);
+      board.setSquare(point, Square.Basic.UNKNOWN);
       delta = +1;
     } else {
-      player.setSquare(point, ExtraSquare.FLAG);
+      board.setSquare(point, ExtraSquare.FLAG);
       delta = -1;
     }
 
@@ -240,7 +240,7 @@ public class FlagMinesweeperState extends MinesweeperState {
         Square neighborSquare = getBoard().getSquare(neighbor);
         if (neighborSquare.isNumber()) {
           Square newNumber = new Square.Number(neighborSquare.getNumber() + delta);
-          player.setSquare(neighbor, newNumber);
+          board.setSquare(neighbor, newNumber);
         }
       }
     }

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.awt.Point;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,14 +18,9 @@ import java.util.stream.Stream;
 import name.falgout.jeffrey.minesweeper.Transition.Action;
 import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
 import name.falgout.jeffrey.minesweeper.board.Board;
-import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
+import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 
-/**
- * Maintains two views of the game. The first view is the "master" view which
- * knows were every mine is. The second view is the "player" view which only
- * knows what has been revealed.
- */
 public class MinesweeperState extends AbstractGameState<Transition> {
   private static final NeighborFunction DEFAULT_NEIGHBOR_FUNCTION = NeighborFunction.CIRCLE;
 
@@ -40,8 +36,8 @@ public class MinesweeperState extends AbstractGameState<Transition> {
     return new Random(seed);
   }
 
-  private final MutableBoard master;
-  protected final MutableBoard player;
+  private final Set<Point> mines;
+  protected final MutableBoard board;
 
   private final int numMines;
   private final Random random;
@@ -64,44 +60,48 @@ public class MinesweeperState extends AbstractGameState<Transition> {
     this(createDefaultPlayerBoard(numRows, numCols, neighbors), numMines, random);
   }
 
-  public MinesweeperState(MutableBoard player, int numMines) {
-    this(player, numMines, getDefaultSeed());
+  public MinesweeperState(MutableBoard board, int numMines) {
+    this(board, numMines, getDefaultSeed());
   }
 
-  public MinesweeperState(MutableBoard player, int numMines, long seed) {
-    this(player, numMines, createDefaultRandom(seed));
+  public MinesweeperState(MutableBoard board, int numMines, long seed) {
+    this(board, numMines, createDefaultRandom(seed));
   }
 
-  public MinesweeperState(MutableBoard player, int numMines, Random random) {
-    master = new ArrayBoard(player.getNumRows(), player.getNumColumns(), player::getNeighbors);
-    this.player = player;
+  public MinesweeperState(MutableBoard board, int numMines, Random random) {
+    mines = new LinkedHashSet<>(numMines);
+    this.board = board;
 
-    this.player.getValidIndexes().forEach(p -> {
-      player.setSquare(p, Square.Basic.UNKNOWN);
+    board.getValidIndexes().forEach(p -> {
+      board.setSquare(p, Square.Basic.UNKNOWN);
     });
 
     this.numMines = numMines;
     this.random = random;
   }
 
+  public int getNumMines() {
+    return numMines;
+  }
+
   public Board getBoard() {
-    return player;
+    return board;
   }
 
   @Override
   public Stream<Transition> getTransitions() {
-    return master.getValidIndexes().map(Action::reveal).filter(this::isValid);
+    return board.getValidIndexes().map(Action::reveal).filter(this::isValid);
   }
 
   @Override
   public boolean isValid(Transition transition) {
-    return transition.getAction() == Action.Basic.REVEAL && !player.getSquare(transition.getPoint()).isRevealed();
+    return transition.getAction() == Action.Basic.REVEAL && !board.getSquare(transition.getPoint()).isRevealed();
   }
 
   @Override
   protected GameState<Transition> updateState(Transition transition) {
     Point point = transition.getPoint();
-    if (master.getSquare(0, 0) == null) {
+    if (mines.isEmpty()) {
       generateBoard(point);
     }
 
@@ -109,24 +109,14 @@ public class MinesweeperState extends AbstractGameState<Transition> {
   }
 
   private void generateBoard(Point point) {
-    List<Point> points = master.getValidIndexes().collect(toList());
+    List<Point> points = board.getValidIndexes().collect(toList());
     points.remove(point);
-    points.removeAll(master.getNeighbors(point));
+    points.removeAll(board.getNeighbors(point));
     Collections.shuffle(points, random);
 
     for (int i = 0; i < numMines; i++) {
       Point mine = points.get(i);
-      master.setSquare(mine, Square.Basic.MINE);
-    }
-
-    for (int row = 0; row < master.getNumRows(); row++) {
-      for (int col = 0; col < master.getNumColumns(); col++) {
-        if (master.getSquare(row, col) == null) {
-          Set<Point> neighbors = master.getNeighbors(row, col);
-          int numMines = (int) neighbors.stream().map(master::getSquare).filter(s -> s != null && s.isMine()).count();
-          master.setSquare(row, col, new Square.Number(numMines));
-        }
-      }
+      mines.add(mine);
     }
   }
 
@@ -137,14 +127,21 @@ public class MinesweeperState extends AbstractGameState<Transition> {
 
     do {
       Point revealPoint = reveal.poll();
-      Square s = master.getSquare(revealPoint);
 
-      if (!player.getSquare(revealPoint).isRevealed()) {
+      if (!board.getSquare(revealPoint).isRevealed()) {
+        Square s;
+        if (mines.contains(revealPoint)) {
+          s = Square.Basic.MINE;
+        } else {
+          int numMines = board.getNeighborsByPoint(revealPoint, mines::contains).size();
+          s = new Square.Number(numMines);
+        }
+
         revealed.put(revealPoint, s);
-        player.setSquare(revealPoint, s);
+        board.setSquare(revealPoint, s);
 
         if (s.isNumber() && s.getNumber() == 0) {
-          reveal.addAll(master.getNeighbors(revealPoint));
+          reveal.addAll(board.getNeighbors(revealPoint));
         }
       }
     } while (!reveal.isEmpty());
@@ -156,7 +153,7 @@ public class MinesweeperState extends AbstractGameState<Transition> {
   protected GameState<Transition> nextState(Map<Point, Square> revealed) {
     if (revealed.containsValue(Square.Basic.MINE)) {
       return GameOver.loss();
-    } else if (numRevealed + numMines == master.size()) {
+    } else if (numRevealed + numMines == board.size()) {
       return GameOver.win();
     } else {
       return this;
