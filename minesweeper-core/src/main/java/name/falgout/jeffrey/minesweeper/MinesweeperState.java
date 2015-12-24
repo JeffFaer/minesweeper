@@ -133,7 +133,7 @@ public class MinesweeperState extends AbstractGameState<Transition> {
         if (mines.contains(revealPoint)) {
           s = Square.Basic.MINE;
         } else {
-          int numMines = board.getNeighborsByPoint(revealPoint, mines::contains).size();
+          int numMines = board.getNeighbors(revealPoint, mines::contains).size();
           s = new Square.Number(numMines);
         }
 

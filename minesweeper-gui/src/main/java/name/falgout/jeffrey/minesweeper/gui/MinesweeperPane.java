@@ -73,8 +73,7 @@ public class MinesweeperPane extends Pane {
 
   private void armNeighbors(Point p, MouseEvent e) {
     if (board.getSquare(p).isRevealed()) {
-      Set<Point> neighbors = board.getNeighbors(p);
-      neighbors.removeIf(pt -> board.getSquare(pt) != Square.Basic.UNKNOWN);
+      Set<Point> neighbors = board.getNeighborsBySquare(p, Square.Basic.UNKNOWN::equals);
       for (Point neighbor : neighbors) {
         buttons.get(neighbor).arm();
       }

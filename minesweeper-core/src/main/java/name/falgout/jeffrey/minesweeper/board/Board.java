@@ -95,10 +95,10 @@ public interface Board {
   public Set<Point> getNeighbors(int row, int col);
 
   default Set<Point> getNeighborsBySquare(Point point, Predicate<? super Square> test) {
-    return getNeighborsByPoint(point, (Point p) -> test.test(getSquare(p)));
+    return getNeighbors(point, (Point p) -> test.test(getSquare(p)));
   }
 
-  default Set<Point> getNeighborsByPoint(Point point, Predicate<? super Point> test) {
+  default Set<Point> getNeighbors(Point point, Predicate<? super Point> test) {
     Set<Point> neighbors = getNeighbors(point);
     neighbors.removeIf(p -> !test.test(p));
     return neighbors;

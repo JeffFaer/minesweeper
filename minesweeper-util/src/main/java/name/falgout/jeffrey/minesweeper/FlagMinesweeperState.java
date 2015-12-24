@@ -159,19 +159,12 @@ public class FlagMinesweeperState extends MinesweeperState {
     } else if (s.getNumber() == 0) {
       return false;
     } else {
-      Set<Point> neighbors = getBoard().getNeighbors(point);
-      int numFlags = 0;
-      for (Point neighbor : neighbors) {
-        if (getBoard().getSquare(neighbor) == ExtraSquare.FLAG) {
-          numFlags++;
-          if (numFlags > s.getNumber()) {
-            return false;
-          }
-        }
-      }
-
-      return numFlags == s.getNumber();
+      return countFlags(point) == s.getNumber();
     }
+  }
+
+  private int countFlags(Point point) {
+    return getBoard().getNeighbors(point, this::isFlag).size();
   }
 
   public GameState<Transition> flag(Point point) {
@@ -197,8 +190,7 @@ public class FlagMinesweeperState extends MinesweeperState {
     Map<Point, Square> revealed;
     if (s.isNumber()) {
       // Flip neighbors since it has enough flags.
-      Set<Point> neighbors = getBoard().getNeighbors(point);
-      neighbors.removeIf(this::isFlag);
+      Set<Point> neighbors = getBoard().getNeighbors(point, p -> !isFlag(p));
 
       revealed = new LinkedHashMap<>(neighbors.size());
       for (Point neighbor : neighbors) {
@@ -211,7 +203,7 @@ public class FlagMinesweeperState extends MinesweeperState {
     if (countDown) {
       for (Entry<Point, Square> e : revealed.entrySet()) {
         if (e.getValue().isNumber()) {
-          int numFlags = (int) getBoard().getNeighbors(e.getKey()).stream().filter(this::isFlag).count();
+          int numFlags = countFlags(e.getKey());
           if (numFlags > 0) {
             Square newNumber = new Square.Number(e.getValue().getNumber() - numFlags);
             board.setSquare(e.getKey(), newNumber);
