@@ -243,4 +243,18 @@ public class FlagMinesweeper extends Minesweeper {
       }
     }
   }
+
+  @Override
+  protected GameState<Transition> nextState(Map<Point, Square> revealed) {
+    GameState<Transition> state = super.nextState(revealed);
+    if (state.isWin()) {
+      // Reveal remaining mines as flags.
+      Stream<Point> mines = getBoard().getValidIndexes().filter(p -> !getBoard().getSquare(p).isRevealed());
+      mines.forEach(p -> {
+        player.setSquare(p, ExtraSquare.FLAG);
+      });
+    }
+
+    return state;
+  }
 }

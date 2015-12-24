@@ -117,4 +117,10 @@ public class FlagMinesweeperTest extends MinesweeperTest {
     minesweeper.transition(Transition.reveal(p2));
     assertEquals(4, board.getSquare(p2).getNumber());
   }
+
+  @Test
+  public void revealsMinesAsFlagsOnWin() {
+    winning();
+    assertEquals(ExtraSquare.FLAG, board.getSquare(0, 4));
+  }
 }
