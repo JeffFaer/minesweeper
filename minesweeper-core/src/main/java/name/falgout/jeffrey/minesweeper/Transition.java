@@ -7,10 +7,10 @@ public class Transition {
     public static enum Basic implements Action {
       REVEAL;
     }
-  }
 
-  public static Transition reveal(Point p) {
-    return new Transition(Action.Basic.REVEAL, p);
+    public static Transition reveal(Point p) {
+      return new Transition(Action.Basic.REVEAL, p);
+    }
   }
 
   private final Action action;

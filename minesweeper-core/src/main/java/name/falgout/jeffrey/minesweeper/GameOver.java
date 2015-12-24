@@ -1,36 +1,32 @@
 package name.falgout.jeffrey.minesweeper;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
-public class GameOver<T> extends GameState<T> {
-  private final Result result;
-
-  public GameOver(Result result) {
-    this.result = result;
-  }
+public enum GameOver implements GameState<Object> {
+  WIN, LOSS;
 
   @Override
-  public Optional<Result> getResult() {
-    return Optional.of(result);
-  }
-
-  @Override
-  public Stream<T> getTransitions() {
+  public Stream<Object> getTransitions() {
     return Stream.empty();
   }
 
   @Override
-  protected GameState<T> updateState(T transition) {
+  public boolean isValid(Object transition) {
+    return false;
+  }
+
+  @Override
+  public GameState<Object> transition(Object transition) {
     throw new UnsupportedOperationException();
   }
 
-  public static <T> GameOver<T> win() {
-    return new GameOver<>(BasicResult.WIN);
+  @SuppressWarnings("unchecked")
+  public static <T> GameState<T> win() {
+    return (GameState<T>) WIN;
   }
 
-  public static <T> GameOver<T> loss() {
-    return new GameOver<>(BasicResult.LOSS);
+  @SuppressWarnings("unchecked")
+  public static <T> GameState<T> loss() {
+    return (GameState<T>) LOSS;
   }
-
 }

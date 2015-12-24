@@ -6,13 +6,12 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import name.falgout.jeffrey.minesweeper.Board;
-import name.falgout.jeffrey.minesweeper.Board.Square;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
-import name.falgout.jeffrey.minesweeper.FlagMinesweeper.ExtraSquare;
-import name.falgout.jeffrey.minesweeper.GameState;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
 import name.falgout.jeffrey.minesweeper.NeighborFunction;
-import name.falgout.jeffrey.minesweeper.Transition;
+import name.falgout.jeffrey.minesweeper.board.Board;
+import name.falgout.jeffrey.minesweeper.board.Board.Square;
 
 public class ConsoleRunner {
   public static void main(String[] args) {
@@ -28,29 +27,29 @@ public class ConsoleRunner {
       f = NeighborFunction.values()[Integer.parseInt(parts[3].trim())];
     }
 
-    if (!new ConsoleRunner(console, new FlagMinesweeper(numRows, numCols, numMines, f)).runGame()) {
+    if (!new ConsoleRunner(console, new FlagMinesweeperState(numRows, numCols, numMines, f)).runGame()) {
       System.exit(1);
     }
   }
 
   private final Console console;
+  private final Board board;
   private final FlagMinesweeper game;
 
-  public ConsoleRunner(FlagMinesweeper game) {
-    this(Console.standardConsole(), game);
+  public ConsoleRunner(FlagMinesweeperState state) {
+    this(Console.standardConsole(), state);
   }
 
-  public ConsoleRunner(Console console, FlagMinesweeper game) {
+  public ConsoleRunner(Console console, FlagMinesweeperState state) {
     this.console = console;
-    this.game = game;
+    board = state.getBoard();
+    game = new FlagMinesweeper(state);
   }
 
   public boolean runGame() {
-    GameState<Transition> state = game;
-    Board view = game.getBoard();
     Pattern regex = Pattern.compile("(?<flag>f(?:l(?:ag?)?)?)?,?\\s*(?<row>\\d+),\\s*(?<col>\\d+)");
     do {
-      drawBoard(view);
+      drawBoard(board);
 
       String line = console.readLine("Input a point [flag] row, col: ");
       Matcher m = regex.matcher(line);
@@ -61,9 +60,9 @@ public class ConsoleRunner {
         Point p = new Point(row, col);
         try {
           if (flag) {
-            state = game.flag(p);
+            game.flag(p);
           } else {
-            state = game.reveal(p);
+            game.reveal(p);
           }
         } catch (IllegalStateException e) {
           console.printf("Illegal move. Try again.%n");
@@ -71,10 +70,10 @@ public class ConsoleRunner {
       } else {
         console.printf("Malformed input.%n");
       }
-    } while (!state.isComplete());
+    } while (!game.isComplete());
 
-    drawBoard(view);
-    if (state.isWin()) {
+    drawBoard(board);
+    if (game.isWin()) {
       console.printf("You won!%n");
       return true;
     } else {

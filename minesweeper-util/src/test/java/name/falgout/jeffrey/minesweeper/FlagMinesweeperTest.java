@@ -1,17 +1,16 @@
 package name.falgout.jeffrey.minesweeper;
 
-import static name.falgout.jeffrey.minesweeper.Transition.reveal;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Point;
 
-import name.falgout.jeffrey.minesweeper.Board.Square;
-import name.falgout.jeffrey.minesweeper.FlagMinesweeper.ExtraAction;
-import name.falgout.jeffrey.minesweeper.FlagMinesweeper.ExtraSquare;
+import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
+import name.falgout.jeffrey.minesweeper.Transition.Action;
+import name.falgout.jeffrey.minesweeper.board.Board.Square;
+import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class FlagMinesweeperTest extends MinesweeperTest {
@@ -49,73 +48,67 @@ public class FlagMinesweeperTest extends MinesweeperTest {
    * </pre>
    */
 
-  public static FlagMinesweeper createMinesweeperGame() {
-    return createMinesweeperGame(true);
-  }
+  FlagMinesweeper flagMinesweeper;
 
-  public static FlagMinesweeper createMinesweeperGame(boolean firstMove) {
-    return createMinesweeperGame(true, false);
-  }
-
-  public static FlagMinesweeper createMinesweeperGame(boolean firstMove, boolean countDown) {
-    FlagMinesweeper game = new FlagMinesweeper(5, 5, 10, NeighborFunction.CIRCLE, MinesweeperTest.seed, countDown);
-    if (firstMove) {
-      game.transition(reveal(MinesweeperTest.start));
-    }
-
-    return game;
+  @Override
+  public void init(MinesweeperState state) {
+    super.init(state);
+    flagMinesweeper = (FlagMinesweeper) minesweeper;
   }
 
   @Override
-  @Before
-  public void before() {
-    init(createMinesweeperGame());
+  public MinesweeperState createState(MutableBoard player, int numBombs, long seed) {
+    return createState(player, numBombs, seed, false);
+  }
+
+  public MinesweeperState createState(MutableBoard player, int numBombs, long seed, boolean countDown) {
+    return new FlagMinesweeperState(player, numBombs, seed, countDown);
+  }
+
+  @Override
+  public Minesweeper createGame(MinesweeperState state) {
+    return new FlagMinesweeper((FlagMinesweeperState) state);
   }
 
   @Test
   public void flagToggleTest() {
-    Point p = new Point(3, 2);
-
-    Square original = board.getSquare(p);
+    Square original = board.getSquare(3, 2);
     assertEquals(Square.Basic.UNKNOWN, original);
 
-    minesweeper.transition(ExtraAction.flag(p));
-    assertEquals(ExtraSquare.FLAG, board.getSquare(p));
+    flagMinesweeper.flag(3, 2);
+    assertEquals(ExtraSquare.FLAG, board.getSquare(3, 2));
 
-    minesweeper.transition(ExtraAction.flag(p));
-    assertEquals(original, board.getSquare(p));
+    flagMinesweeper.flag(3, 2);
+    assertEquals(original, board.getSquare(3, 2));
   }
 
   @Test
   public void complexRevealTest() {
-    Transition reveal = Transition.reveal(new Point(1, 2));
-    assertFalse(minesweeper.isValid(reveal));
+    Transition reveal = Action.reveal(new Point(1, 2));
+    assertFalse(flagMinesweeper.isValid(reveal));
 
-    minesweeper.transition(ExtraAction.flag(new Point(0, 3)));
-    assertFalse(minesweeper.isValid(reveal));
-    minesweeper.transition(ExtraAction.flag(new Point(1, 3)));
+    flagMinesweeper.flag(0, 3);
+    assertFalse(flagMinesweeper.isValid(reveal));
+    flagMinesweeper.flag(1, 3);
+    assertTrue(flagMinesweeper.isValid(reveal));
 
-    assertTrue(minesweeper.isValid(reveal));
-    Point p = new Point(2, 3);
-    assertEquals(Square.Basic.UNKNOWN, board.getSquare(p));
-    minesweeper.transition(reveal);
-    assertEquals(5, board.getSquare(p).getNumber());
+    assertEquals(Square.Basic.UNKNOWN, board.getSquare(2, 3));
+    flagMinesweeper.transition(reveal);
+    assertEquals(5, board.getSquare(2, 3).getNumber());
   }
 
   @Test
   public void countdownTest() {
-    init(createMinesweeperGame(true, true));
-    Point p = new Point(1, 2);
-    assertEquals(2, board.getSquare(p).getNumber());
+    init(createState(MinesweeperTest.PLAYER_BOARD, MinesweeperTest.NUM_MINES, MinesweeperTest.SEED, true));
+    assertEquals(2, board.getSquare(1, 2).getNumber());
 
-    minesweeper.transition(ExtraAction.flag(new Point(0, 3)));
-    assertEquals(1, board.getSquare(p).getNumber());
-    minesweeper.transition(ExtraAction.flag(new Point(1, 3)));
-    assertEquals(0, board.getSquare(p).getNumber());
+    flagMinesweeper.flag(0, 3);
+    assertEquals(1, board.getSquare(1, 2).getNumber());
+    flagMinesweeper.flag(1, 3);
+    assertEquals(0, board.getSquare(1, 2).getNumber());
 
-    Point p2 = new Point(2, 3);
-    minesweeper.transition(Transition.reveal(p2));
-    assertEquals(4, board.getSquare(p2).getNumber());
+    flagMinesweeper.reveal(2, 3);
+    assertEquals(4, board.getSquare(2, 3).getNumber());
   }
 
   @Test

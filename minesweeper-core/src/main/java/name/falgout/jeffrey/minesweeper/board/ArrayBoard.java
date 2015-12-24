@@ -1,4 +1,4 @@
-package name.falgout.jeffrey.minesweeper;
+package name.falgout.jeffrey.minesweeper.board;
 
 import java.awt.Point;
 import java.util.Set;
