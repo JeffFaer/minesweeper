@@ -17,7 +17,7 @@ public enum GameOver implements GameState<Object> {
 
   @Override
   public GameState<Object> transition(Object transition) {
-    throw new UnsupportedOperationException();
+    throw new IllegalStateException("Game over!");
   }
 
   @SuppressWarnings("unchecked")

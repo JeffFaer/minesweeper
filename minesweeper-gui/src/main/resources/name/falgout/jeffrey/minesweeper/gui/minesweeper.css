@@ -1,0 +1,62 @@
+.root {
+    -fx-color-depressed: derive(-fx-base, -30%);
+}
+
+.button:depressed {
+    -fx-background-color: derive(-fx-color-depressed, -15%), -fx-color-depressed;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 0;
+}
+
+.button:depressed:hover {
+    -fx-color: -fx-base
+}
+
+.button:armed {
+    -fx-color: derive(-fx-color-depressed, +35%)
+}
+
+.button._0 {
+    -fx-font-weight: bold;
+    -fx-text-fill: transparent;
+}
+.button._1 {
+    -fx-font-weight: bold;
+    -fx-text-fill: blue;
+}
+.button._2 {
+    -fx-font-weight: bold;
+    -fx-text-fill: green;
+}
+.button._3 {
+    -fx-font-weight: bold;
+    -fx-text-fill: red;
+}
+.button._4 {
+    -fx-font-weight: bold;
+    -fx-text-fill: darkblue;
+}
+.button._5 {
+    -fx-font-weight: bold;
+    -fx-text-fill: maroon;
+}
+.button._6 {
+    -fx-font-weight: bold;
+    -fx-text-fill: cyan;
+}
+.button._7 {
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+.button._8 {
+    -fx-font-weight: bold;
+    -fx-text-fill: gray;
+}
+
+.button.flag {
+    -fx-text-fill: tomato;
+}
+
+.button.mine {
+    -fx-text-fill: red;
+}

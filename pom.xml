@@ -13,6 +13,7 @@
         <module>minesweeper-core</module>
         <module>minesweeper-cli</module>
         <module>minesweeper-util</module>
+        <module>minesweeper-gui</module>
     </modules>
     <dependencyManagement>
         <dependencies>
