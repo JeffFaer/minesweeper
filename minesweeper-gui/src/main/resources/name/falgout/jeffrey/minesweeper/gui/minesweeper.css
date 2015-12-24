@@ -2,6 +2,10 @@
     -fx-color-revealed: derive(-fx-base, -30%);
 }
 
+.toolbar {
+    -fx-font-size: 25;
+}
+
 .button:revealed {
     -fx-background-color: derive(-fx-color-revealed, -15%), -fx-color-revealed;
     -fx-background-insets: 0, 1;

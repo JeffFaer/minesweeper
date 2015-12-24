@@ -14,7 +14,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
@@ -39,18 +38,21 @@ public class MinesweeperPane extends Pane {
     board.updatedSquare().addListener((obs, oldValue, newValue) -> {
       updateButton(newValue.getKey(), newValue.getValue());
     });
-
+    
+    Label flags = new Label("Flags:");
     Label flagCount = new Label();
-    flagCount.setFont(Font.font(25));
-    flagCount.textProperty().bind(board.numFlags().asString("Flags: %d/" + numMines));
-
+    flagCount.textProperty().bind(board.numFlags().asString("%d/" + numMines));
+    flags.setLabelFor(flagCount);
+    
+    Label time = new Label("Time:");
     Label elapsedTime = new Label();
-    elapsedTime.textProperty().bind(timer.elapsedTime().asString("Time: %H:%M:%S"));
-    elapsedTime.fontProperty().bindBidirectional(flagCount.fontProperty());
+    elapsedTime.textProperty().bind(timer.elapsedTime().asString());
+    time.setLabelFor(elapsedTime);
 
     HBox toolbar = new HBox(15);
+    toolbar.getStyleClass().add("toolbar");
     toolbar.setAlignment(Pos.CENTER_RIGHT);
-    toolbar.getChildren().addAll(flagCount, elapsedTime);
+    toolbar.getChildren().addAll(flags, flagCount, time, elapsedTime);
 
     GridPane grid = new GridPane();
     board.getValidIndexes().forEach(p -> {
