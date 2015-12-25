@@ -14,19 +14,18 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
+import name.falgout.jeffrey.minesweeper.ObservableBoard;
 import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
 import name.falgout.jeffrey.minesweeper.gui.binding.FunctionBindings;
 
-public class MinesweeperBoard extends VBox {
+public class MinesweeperBoard extends GridPane {
   private static final double MIN_GRID_WIDTH = 35;
   private static final PseudoClass REVEALED = PseudoClass.getPseudoClass("revealed");
 
@@ -67,8 +66,6 @@ public class MinesweeperBoard extends VBox {
     NumberBinding fontSize = squareSize.multiply(.5);
     NumberBinding negativeFontSize = fontSize.multiply(.75);
 
-    GridPane grid = new GridPane();
-    grid.setAlignment(Pos.CENTER);
     board.getValidIndexes().forEach(
         p -> {
           Button square = new Button();
@@ -91,11 +88,9 @@ public class MinesweeperBoard extends VBox {
           square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> disarmNeighbors(p, e));
           square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> updateGame(p, e));
 
-          grid.add(square, p.y, p.x);
+          add(square, p.y, p.x);
           buttons.put(p, square);
         });
-
-    getChildren().addAll(grid);
   }
 
   private void updateButton(Point p, Square s) {

@@ -13,6 +13,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import name.falgout.jeffrey.minesweeper.NeighborFunction;
+import name.falgout.jeffrey.minesweeper.ObservableBoard;
 import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 import name.falgout.jeffrey.minesweeper.gui.binding.DurationBinding;
@@ -29,7 +30,6 @@ public class Main extends Application {
 
     toolbar = new HBox();
     VBox.setVgrow(toolbar, Priority.NEVER);
-    toolbar.setAlignment(Pos.CENTER_RIGHT);
     toolbar.getStyleClass().add("toolbar");
 
     content = new VBox();
@@ -60,9 +60,13 @@ public class Main extends Application {
     ObservableBoard obsBoard = new ObservableBoard(board);
 
     GameStatus status = new GameStatus(obsBoard, numMines);
+    HBox.setHgrow(status, Priority.ALWAYS);
+    status.setAlignment(Pos.CENTER_RIGHT);
 
     MinesweeperBoard boardView = new MinesweeperBoard(obsBoard, numMines);
     VBox.setVgrow(boardView, Priority.ALWAYS);
+    boardView.setAlignment(Pos.CENTER);
+
     boardView.gameStarted().addListener((obs, oldValue, newValue) -> {
       if (newValue) {
         status.getTimer().start();
