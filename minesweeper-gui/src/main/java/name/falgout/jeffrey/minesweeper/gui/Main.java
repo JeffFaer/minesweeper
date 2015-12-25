@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import name.falgout.jeffrey.minesweeper.NeighborFunction;
 import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
+import name.falgout.jeffrey.minesweeper.gui.binding.DurationBinding;
 
 public class Main extends Application {
   @Override
@@ -19,6 +20,13 @@ public class Main extends Application {
     ObservableBoard board = new ObservableBoard(new ArrayBoard(numRows, numCols,
         NeighborFunction.CIRCLE.andThen(NeighborFunction.wrapAround(numRows, numCols))));
     MinesweeperPane p = new MinesweeperPane(board, numMines, true);
+    p.gameComplete().addListener(
+        (obs, oldValue, newValue) -> {
+          if (newValue) {
+            System.out.println((p.getGame().isWin() ? "Win " : "Lose ") + "in "
+                + p.getTimer().elapsedTime().asString(DurationBinding.HMSL).get());
+          }
+        });
 
     Scene scene = new Scene(p);
 

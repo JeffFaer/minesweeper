@@ -9,6 +9,9 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.NumberBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -33,6 +36,8 @@ public class MinesweeperPane extends VBox {
   private final FlagMinesweeper game;
 
   private final Timer timer;
+
+  private final BooleanProperty gameComplete = new SimpleBooleanProperty(false);
 
   public MinesweeperPane(ObservableBoard board, int numMines, boolean countDown) {
     game = new FlagMinesweeper(new FlagMinesweeperState(board, numMines, countDown));
@@ -174,12 +179,19 @@ public class MinesweeperPane extends VBox {
   private void checkEnd() {
     if (game.isComplete()) {
       timer.stop();
-
-      if (game.isWin()) {
-        System.out.println("Win");
-      } else if (game.isLoss()) {
-        System.out.println("Lose");
-      }
+      gameComplete.set(true);
     }
+  }
+
+  public FlagMinesweeper getGame() {
+    return game;
+  }
+
+  public Timer getTimer() {
+    return timer;
+  }
+
+  public ReadOnlyBooleanProperty gameComplete() {
+    return gameComplete;
   }
 }
