@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import name.falgout.jeffrey.minesweeper.NeighborFunction;
 import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
@@ -14,17 +13,14 @@ import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
 public class Main extends Application {
   @Override
   public void start(Stage primaryStage) {
-    int numRows = 16;
-    int numCols = 30;
-    int numMines = 99;
+    int numRows = 8;
+    int numCols = 8;
+    int numMines = 10;
     ObservableBoard board = new ObservableBoard(new ArrayBoard(numRows, numCols,
         NeighborFunction.CIRCLE.andThen(NeighborFunction.wrapAround(numRows, numCols))));
     MinesweeperPane p = new MinesweeperPane(board, numMines, true);
 
-    StackPane root = new StackPane();
-    root.getChildren().add(p);
-
-    Scene scene = new Scene(root);
+    Scene scene = new Scene(p);
 
     addStylesheet(scene);
 
@@ -35,7 +31,7 @@ public class Main extends Application {
 
   private void addStylesheet(Scene scene) {
     scene.getStylesheets().add(Main.class.getResource("minesweeper.css").toExternalForm());
-    
+
     Path p = Paths.get("minesweeper.css");
     if (Files.exists(p)) {
       scene.getStylesheets().add(p.toUri().toString());

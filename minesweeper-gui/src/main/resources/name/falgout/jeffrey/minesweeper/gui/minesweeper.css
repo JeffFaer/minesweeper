@@ -1,83 +1,86 @@
-.root {
-    -fx-color-revealed: derive(-fx-base, -30%);
-}
-
 .toolbar {
-    -fx-font-size: 25;
+    -fx-font-size: 20;
 }
 
-.button {
-    -fx-font-size: 14;
-    
-    -fx-square-size: 2.5em;
-    -fx-pref-width: -fx-square-size;
-    -fx-pref-height: -fx-square-size;
+.grid {
+    revealed-color: derive(-fx-base, -30%);
+    -fx-font-family: monospaced;
 }
 
-.button:revealed {
-    -fx-background-color: derive(-fx-color-revealed, -15%), -fx-color-revealed;
+.grid:revealed {
+    -fx-background-color: derive(revealed-color, -15%), revealed-color;
     -fx-background-insets: 0, 1;
     -fx-background-radius: 0;
 }
 
-.button:revealed:hover {
+.grid:revealed:hover {
     -fx-color: -fx-base
 }
 
-.button:armed {
-    -fx-color: derive(-fx-color-revealed, +35%)
+.grid:armed {
+    -fx-color: derive(revealed-color, +35%)
 }
 
-.button.negative {
+.grid._negative {
     -fx-font-weight: bolder;
     -fx-text-fill: red;
 }
 
-.button._0 {
+.grid._0 {
     -fx-font-weight: bold;
     -fx-text-fill: transparent;
 }
-.button._1 {
+
+.grid._1 {
     -fx-font-weight: bold;
     -fx-text-fill: blue;
 }
-.button._2 {
+
+.grid._2 {
     -fx-font-weight: bold;
     -fx-text-fill: green;
 }
-.button._3 {
+
+.grid._3 {
     -fx-font-weight: bold;
     -fx-text-fill: red;
 }
-.button._4 {
+
+.grid._4 {
     -fx-font-weight: bold;
     -fx-text-fill: darkblue;
 }
-.button._5 {
+
+.grid._5 {
     -fx-font-weight: bold;
     -fx-text-fill: maroon;
 }
-.button._6 {
+
+.grid._6 {
     -fx-font-weight: bold;
     -fx-text-fill: cyan;
 }
-.button._7 {
+
+.grid._7 {
     -fx-font-weight: bold;
     -fx-text-fill: black;
 }
-.button._8 {
+
+.grid._8 {
     -fx-font-weight: bold;
     -fx-text-fill: gray;
 }
 
-.button.flag {
+.grid.flag {
     -fx-text-fill: transparent;
     -fx-background-image: url(flag.png);
-    -fx-background-size: contain;
+    -fx-background-repeat: stretch;
+    -fx-background-size: cover;
 }
 
-.button.mine {
+.grid.mine {
     -fx-text-fill: transparent;
     -fx-background-image: url(mine.png);
-    -fx-background-size: contain;
+    -fx-background-repeat: stretch;
+    -fx-background-size: cover;
 }

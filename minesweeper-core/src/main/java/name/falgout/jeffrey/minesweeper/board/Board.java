@@ -58,6 +58,15 @@ public interface Board {
       public boolean isRevealed() {
         return true;
       }
+
+      @Override
+      public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Number [number=");
+        builder.append(number);
+        builder.append("]");
+        return builder.toString();
+      }
     }
 
     public boolean isMine();
