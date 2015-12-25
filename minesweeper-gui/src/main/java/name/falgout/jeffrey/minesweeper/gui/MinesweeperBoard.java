@@ -26,7 +26,7 @@ import name.falgout.jeffrey.minesweeper.board.Board.Square;
 import name.falgout.jeffrey.minesweeper.gui.binding.FunctionBindings;
 
 public class MinesweeperBoard extends GridPane {
-  private static final double MIN_GRID_WIDTH = 35;
+  private static final double MIN_GRID_WIDTH = 30;
   private static final PseudoClass REVEALED = PseudoClass.getPseudoClass("revealed");
 
   private final Map<Point, Button> buttons = new LinkedHashMap<>();
@@ -63,7 +63,7 @@ public class MinesweeperBoard extends GridPane {
 
     NumberBinding squareSize = Bindings.min(widthPerColumn, heightPerRow);
 
-    NumberBinding fontSize = squareSize.multiply(.5);
+    NumberBinding fontSize = squareSize.multiply(.45);
     NumberBinding negativeFontSize = fontSize.multiply(.75);
 
     board.getValidIndexes().forEach(
