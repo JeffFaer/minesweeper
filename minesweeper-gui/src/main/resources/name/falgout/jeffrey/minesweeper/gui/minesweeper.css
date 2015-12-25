@@ -71,9 +71,13 @@
 }
 
 .button.flag {
-    -fx-text-fill: tomato;
+    -fx-text-fill: transparent;
+    -fx-background-image: url(flag.png);
+    -fx-background-size: contain;
 }
 
 .button.mine {
-    -fx-text-fill: red;
+    -fx-text-fill: transparent;
+    -fx-background-image: url(mine.png);
+    -fx-background-size: contain;
 }
