@@ -13,12 +13,11 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.css.PseudoClass;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
@@ -27,44 +26,43 @@ import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
 import name.falgout.jeffrey.minesweeper.gui.binding.FunctionBindings;
 
-public class MinesweeperPane extends VBox {
+public class MinesweeperBoard extends VBox {
   private static final double MIN_GRID_WIDTH = 35;
   private static final PseudoClass REVEALED = PseudoClass.getPseudoClass("revealed");
 
   private final Map<Point, Button> buttons = new LinkedHashMap<>();
-  private final Board board;
   private final FlagMinesweeper game;
+  private final Board board;
 
-  private final Timer timer;
-
+  private final BooleanProperty gameStarted = new SimpleBooleanProperty(false);
   private final BooleanProperty gameComplete = new SimpleBooleanProperty(false);
 
-  public MinesweeperPane(ObservableBoard board, int numMines, boolean countDown) {
+  public MinesweeperBoard(ObservableBoard board, int numMines) {
+    this(board, numMines, false);
+  }
+
+  public MinesweeperBoard(ObservableBoard board, int numMines, boolean countDown) {
     game = new FlagMinesweeper(new FlagMinesweeperState(board, numMines, countDown));
     this.board = board;
-
-    timer = new Timer();
 
     board.updatedSquare().addListener((obs, oldValue, newValue) -> {
       updateButton(newValue.getKey(), newValue.getValue());
     });
 
-    Label flagCount = new Label();
-    flagCount.textProperty().bind(board.numFlags().asString("Flags: %d/" + numMines));
+    DoubleBinding insetsLeft = FunctionBindings.bindDouble(insetsProperty(), Insets::getLeft);
+    DoubleBinding insetsRight = FunctionBindings.bindDouble(insetsProperty(), Insets::getRight);
+    DoubleBinding insetsTop = FunctionBindings.bindDouble(insetsProperty(), Insets::getTop);
+    DoubleBinding insetsBottom = FunctionBindings.bindDouble(insetsProperty(), Insets::getBottom);
 
-    Label elapsedTime = new Label();
-    elapsedTime.textProperty().bind(timer.elapsedTime().asString("Time: %H:%M:%S"));
+    DoubleBinding insetsWidth = insetsLeft.add(insetsRight);
+    DoubleBinding insetsHeight = insetsTop.add(insetsBottom);
 
-    HBox toolbar = new HBox(15);
-    toolbar.getStyleClass().add("toolbar");
-    toolbar.setAlignment(Pos.CENTER_RIGHT);
-    toolbar.getChildren().addAll(flagCount, elapsedTime);
-
-    DoubleBinding widthPerColumn = widthProperty().divide(board.getNumColumns());
-    DoubleBinding usableHeight = heightProperty().subtract(toolbar.heightProperty());
+    DoubleBinding usableWidth = widthProperty().subtract(insetsWidth);
+    DoubleBinding widthPerColumn = usableWidth.divide(board.getNumColumns());
+    DoubleBinding usableHeight = heightProperty().subtract(insetsHeight);
     DoubleBinding heightPerRow = usableHeight.divide(board.getNumRows());
-    NumberBinding squareSize = Bindings.max(MIN_GRID_WIDTH,
-        Bindings.min(widthPerColumn, heightPerRow));
+
+    NumberBinding squareSize = Bindings.min(widthPerColumn, heightPerRow);
 
     NumberBinding fontSize = squareSize.multiply(.5);
     NumberBinding negativeFontSize = fontSize.multiply(.75);
@@ -79,7 +77,7 @@ public class MinesweeperPane extends VBox {
           square.prefHeightProperty().bindBidirectional(square.prefWidthProperty());
           square.prefHeightProperty().bind(squareSize);
           square.minHeightProperty().bindBidirectional(square.minWidthProperty());
-          square.minHeightProperty().bind(square.prefHeightProperty());
+          square.minHeightProperty().set(MIN_GRID_WIDTH);
 
           BooleanBinding isNegative = FunctionBindings.bindInt(square.textProperty(),
               this::safeParseInt).lessThan(0);
@@ -97,7 +95,7 @@ public class MinesweeperPane extends VBox {
           buttons.put(p, square);
         });
 
-    getChildren().addAll(toolbar, grid);
+    getChildren().addAll(grid);
   }
 
   private void updateButton(Point p, Square s) {
@@ -157,8 +155,8 @@ public class MinesweeperPane extends VBox {
     try {
       switch (e.getButton()) {
       case PRIMARY:
-        if (!game.isComplete() && !timer.isRunning()) {
-          timer.start();
+        if (!game.isComplete()) {
+          gameStarted.set(true);
         }
 
         game.reveal(p);
@@ -178,7 +176,6 @@ public class MinesweeperPane extends VBox {
 
   private void checkEnd() {
     if (game.isComplete()) {
-      timer.stop();
       gameComplete.set(true);
     }
   }
@@ -187,8 +184,8 @@ public class MinesweeperPane extends VBox {
     return game;
   }
 
-  public Timer getTimer() {
-    return timer;
+  public ReadOnlyBooleanProperty gameStarted() {
+    return gameStarted;
   }
 
   public ReadOnlyBooleanProperty gameComplete() {
