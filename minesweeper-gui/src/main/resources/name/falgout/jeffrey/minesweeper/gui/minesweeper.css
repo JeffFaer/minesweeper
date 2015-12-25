@@ -6,6 +6,14 @@
     -fx-font-size: 25;
 }
 
+.button {
+    -fx-font-size: 14;
+    
+    -fx-square-size: 2.5em;
+    -fx-pref-width: -fx-square-size;
+    -fx-pref-height: -fx-square-size;
+}
+
 .button:revealed {
     -fx-background-color: derive(-fx-color-revealed, -15%), -fx-color-revealed;
     -fx-background-insets: 0, 1;

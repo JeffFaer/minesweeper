@@ -38,28 +38,23 @@ public class MinesweeperPane extends Pane {
     board.updatedSquare().addListener((obs, oldValue, newValue) -> {
       updateButton(newValue.getKey(), newValue.getValue());
     });
-    
-    Label flags = new Label("Flags:");
+
     Label flagCount = new Label();
-    flagCount.textProperty().bind(board.numFlags().asString("%d/" + numMines));
-    flags.setLabelFor(flagCount);
-    
-    Label time = new Label("Time:");
+    flagCount.textProperty().bind(board.numFlags().asString("Flags: %d/" + numMines));
+
     Label elapsedTime = new Label();
-    elapsedTime.textProperty().bind(timer.elapsedTime().asString());
-    time.setLabelFor(elapsedTime);
+    elapsedTime.textProperty().bind(timer.elapsedTime().asString("Time: %H:%M:%S"));
 
     HBox toolbar = new HBox(15);
     toolbar.getStyleClass().add("toolbar");
     toolbar.setAlignment(Pos.CENTER_RIGHT);
-    toolbar.getChildren().addAll(flags, flagCount, time, elapsedTime);
+    toolbar.getChildren().addAll(flagCount, elapsedTime);
 
     GridPane grid = new GridPane();
     board.getValidIndexes().forEach(p -> {
       Button square = new Button();
 
       square.setFocusTraversable(false);
-      square.setPrefSize(35, 35);
       square.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> armNeighbors(p, e));
       square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> disarmNeighbors(p, e));
       square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> updateGame(p, e));
@@ -124,7 +119,7 @@ public class MinesweeperPane extends Pane {
     try {
       switch (e.getButton()) {
       case PRIMARY:
-        if (!timer.isRunning()) {
+        if (!game.isComplete() && !timer.isRunning()) {
           timer.start();
         }
 
