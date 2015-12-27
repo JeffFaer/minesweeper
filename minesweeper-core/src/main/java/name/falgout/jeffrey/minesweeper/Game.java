@@ -8,7 +8,7 @@ public abstract class Game<T, G extends Game<T, G>> implements GameState<T> {
   protected Game(GameState<T> state) {
     this.state = state;
   }
-  
+
   protected abstract G getSelf();
 
   public boolean isComplete() {

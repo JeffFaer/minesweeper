@@ -93,7 +93,8 @@ public abstract class Console {
   };
 
   public static Console create(Reader in, Writer out) {
-    BufferedReader bin = in instanceof BufferedReader ? (BufferedReader) in : new BufferedReader(in);
+    BufferedReader bin = in instanceof BufferedReader ? (BufferedReader) in
+        : new BufferedReader(in);
     PrintWriter pout = out instanceof PrintWriter ? (PrintWriter) out : new PrintWriter(out, true);
     return new Console() {
       @Override
@@ -123,7 +124,7 @@ public abstract class Console {
   }
 
   public static Console standardConsole() {
-    return SYSTEM_CONSOLE != null ? SYSTEM_CONSOLE : Console.create(new InputStreamReader(System.in),
-        new OutputStreamWriter(System.out));
+    return SYSTEM_CONSOLE != null ? SYSTEM_CONSOLE : Console.create(
+        new InputStreamReader(System.in), new OutputStreamWriter(System.out));
   }
 }

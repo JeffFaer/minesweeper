@@ -34,8 +34,7 @@ public enum NeighborFunction implements Function<Point, Set<Point>> {
   @Override
   public abstract Set<Point> apply(Point t);
 
-  public static Function<Set<Point>, Set<Point>> wrapAround(int numRows,
-      int numColumns) {
+  public static Function<Set<Point>, Set<Point>> wrapAround(int numRows, int numColumns) {
     return neighbors -> {
       Set<Point> wrappedNeighbors = new LinkedHashSet<>(neighbors.size());
       for (Point neighbor : neighbors) {
@@ -47,7 +46,7 @@ public enum NeighborFunction implements Function<Point, Set<Point>> {
         if (neighbor.y < 0) {
           neighbor.y += numColumns;
         }
-        
+
         wrappedNeighbors.add(neighbor);
       }
 

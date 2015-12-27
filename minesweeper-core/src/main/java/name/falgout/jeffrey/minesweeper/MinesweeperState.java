@@ -24,7 +24,8 @@ import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 public class MinesweeperState extends AbstractGameState<Transition> {
   private static final NeighborFunction DEFAULT_NEIGHBOR_FUNCTION = NeighborFunction.CIRCLE;
 
-  private static MutableBoard createDefaultPlayerBoard(int numRows, int numCols, Function<Point, Set<Point>> neighbors) {
+  private static MutableBoard createDefaultPlayerBoard(int numRows, int numCols,
+      Function<Point, Set<Point>> neighbors) {
     return new ArrayBoard(numRows, numCols, neighbors);
   }
 
@@ -48,15 +49,18 @@ public class MinesweeperState extends AbstractGameState<Transition> {
     this(createDefaultPlayerBoard(numRows, numCols, DEFAULT_NEIGHBOR_FUNCTION), numMines);
   }
 
-  public MinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors) {
+  public MinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors) {
     this(createDefaultPlayerBoard(numRows, numCols, neighbors), numMines);
   }
 
-  public MinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed) {
+  public MinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors, long seed) {
     this(createDefaultPlayerBoard(numRows, numCols, neighbors), numMines, seed);
   }
 
-  public MinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, Random random) {
+  public MinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors, Random random) {
     this(createDefaultPlayerBoard(numRows, numCols, neighbors), numMines, random);
   }
 
@@ -95,7 +99,8 @@ public class MinesweeperState extends AbstractGameState<Transition> {
 
   @Override
   public boolean isValid(Transition transition) {
-    return transition.getAction() == Action.Basic.REVEAL && !board.getSquare(transition.getPoint()).isRevealed();
+    return transition.getAction() == Action.Basic.REVEAL
+        && !board.getSquare(transition.getPoint()).isRevealed();
   }
 
   @Override

@@ -48,16 +48,18 @@ public class FlagMinesweeperState extends MinesweeperState {
 
   private final boolean countDown;
 
-  public FlagMinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed) {
+  public FlagMinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors, long seed) {
     this(numRows, numCols, numMines, neighbors, seed, false);
   }
 
-  public FlagMinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors,
-      Random random) {
+  public FlagMinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors, Random random) {
     this(numRows, numCols, numMines, neighbors, random, false);
   }
 
-  public FlagMinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors) {
+  public FlagMinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors) {
     this(numRows, numCols, numMines, neighbors, false);
   }
 
@@ -92,20 +94,20 @@ public class FlagMinesweeperState extends MinesweeperState {
     this.countDown = countDown;
   }
 
-  public FlagMinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors,
-      Random random, boolean countDown) {
+  public FlagMinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors, Random random, boolean countDown) {
     super(numRows, numCols, numMines, neighbors, random);
     this.countDown = countDown;
   }
 
-  public FlagMinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors, long seed,
-      boolean countDown) {
+  public FlagMinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors, long seed, boolean countDown) {
     super(numRows, numCols, numMines, neighbors, seed);
     this.countDown = countDown;
   }
 
-  public FlagMinesweeperState(int numRows, int numCols, int numMines, Function<Point, Set<Point>> neighbors,
-      boolean countDown) {
+  public FlagMinesweeperState(int numRows, int numCols, int numMines,
+      Function<Point, Set<Point>> neighbors, boolean countDown) {
     super(numRows, numCols, numMines, neighbors);
     this.countDown = countDown;
   }
@@ -133,7 +135,8 @@ public class FlagMinesweeperState extends MinesweeperState {
       // Reveal a single square from the game that isn't a flag.
       // or
       // If the given square has enough flags, reveal its neighbors.
-      return (!isFlag(point) && super.isValid(transition)) || (isNumber(point) && hasEnoughFlags(point));
+      return (!isFlag(point) && super.isValid(transition))
+          || (isNumber(point) && hasEnoughFlags(point));
     } else {
       return false;
     }
@@ -243,7 +246,9 @@ public class FlagMinesweeperState extends MinesweeperState {
     GameState<Transition> state = super.nextState(revealed);
     if (state.equals(GameOver.WIN)) {
       // Reveal remaining mines as flags.
-      Stream<Point> mines = getBoard().getValidIndexes().filter(this::isHidden).filter(p -> !isFlag(p));
+      Stream<Point> mines = getBoard().getValidIndexes()
+          .filter(this::isHidden)
+          .filter(p -> !isFlag(p));
       mines.forEach(p -> {
         transition(ExtraAction.flag(p));
       });

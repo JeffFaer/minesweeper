@@ -87,8 +87,9 @@ public interface Board {
   }
 
   default Stream<Point> getValidIndexes() {
-    return IntStream.range(0, getNumRows()).boxed().flatMap(
-        row -> IntStream.range(0, getNumColumns()).mapToObj(col -> new Point(row, col)));
+    return IntStream.range(0, getNumRows())
+        .boxed()
+        .flatMap(row -> IntStream.range(0, getNumColumns()).mapToObj(col -> new Point(row, col)));
   }
 
   default Square getSquare(Point point) {

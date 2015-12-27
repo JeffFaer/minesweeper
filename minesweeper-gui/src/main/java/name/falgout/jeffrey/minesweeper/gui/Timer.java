@@ -11,6 +11,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.util.Duration;
+
 import name.falgout.jeffrey.minesweeper.gui.binding.DurationBinding;
 
 public class Timer {

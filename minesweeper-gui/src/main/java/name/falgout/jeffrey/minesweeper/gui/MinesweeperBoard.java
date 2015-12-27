@@ -17,6 +17,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;

@@ -10,11 +10,11 @@ import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.PrintWriter;
 
-import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
-import name.falgout.jeffrey.minesweeper.MinesweeperTest;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
+import name.falgout.jeffrey.minesweeper.MinesweeperTest;
 
 public class ConsoleRunnerTest {
   /**
@@ -61,7 +61,8 @@ public class ConsoleRunnerTest {
     PipedWriter out = new PipedWriter(in);
     cmd = new PrintWriter(out);
 
-    minesweeper = new FlagMinesweeperState(MinesweeperTest.PLAYER_BOARD, MinesweeperTest.NUM_MINES, MinesweeperTest.SEED);
+    minesweeper = new FlagMinesweeperState(MinesweeperTest.PLAYER_BOARD, MinesweeperTest.NUM_MINES,
+        MinesweeperTest.SEED);
     main = new ConsoleRunner(Console.create(in, new OutputStreamWriter(System.out)), minesweeper);
   }
 
@@ -73,7 +74,8 @@ public class ConsoleRunnerTest {
 
   @Test
   public void winningGame() {
-    runGame(MinesweeperTest.START, new Point(2, 3), new Point(3, 4), new Point(4, 0), new Point(4, 3));
+    runGame(MinesweeperTest.START, new Point(2, 3), new Point(3, 4), new Point(4, 0), new Point(4,
+        3));
 
     assertTrue(main.runGame());
   }

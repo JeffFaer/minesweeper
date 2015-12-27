@@ -1,8 +1,9 @@
 package name.falgout.jeffrey.minesweeper.gui;
 
-import name.falgout.jeffrey.minesweeper.ObservableBoard;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+
+import name.falgout.jeffrey.minesweeper.ObservableBoard;
 
 public class GameStatus extends HBox {
   private final Timer timer;

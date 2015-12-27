@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 import name.falgout.jeffrey.minesweeper.ObservableBoard;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 import name.falgout.jeffrey.minesweeper.gui.binding.DurationBinding;

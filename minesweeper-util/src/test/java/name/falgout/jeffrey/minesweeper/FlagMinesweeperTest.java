@@ -6,12 +6,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.awt.Point;
 
+import org.junit.Test;
+
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
 import name.falgout.jeffrey.minesweeper.Transition.Action;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
-
-import org.junit.Test;
 
 public class FlagMinesweeperTest extends MinesweeperTest {
   /**
@@ -61,7 +61,8 @@ public class FlagMinesweeperTest extends MinesweeperTest {
     return createState(player, numBombs, seed, false);
   }
 
-  public MinesweeperState createState(MutableBoard player, int numBombs, long seed, boolean countDown) {
+  public MinesweeperState createState(MutableBoard player, int numBombs, long seed,
+      boolean countDown) {
     return new FlagMinesweeperState(player, numBombs, seed, countDown);
   }
 
@@ -99,7 +100,8 @@ public class FlagMinesweeperTest extends MinesweeperTest {
 
   @Test
   public void countdownTest() {
-    init(createState(MinesweeperTest.PLAYER_BOARD, MinesweeperTest.NUM_MINES, MinesweeperTest.SEED, true));
+    init(createState(MinesweeperTest.PLAYER_BOARD, MinesweeperTest.NUM_MINES, MinesweeperTest.SEED,
+        true));
     assertEquals(2, board.getSquare(1, 2).getNumber());
 
     flagMinesweeper.flag(0, 3);

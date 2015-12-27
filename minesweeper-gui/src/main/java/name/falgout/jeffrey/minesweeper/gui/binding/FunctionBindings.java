@@ -67,7 +67,8 @@ public final class FunctionBindings {
     };
   }
 
-  public static <T> DoubleBinding bindDouble(ObservableValue<T> obs, ToDoubleFunction<? super T> map) {
+  public static <T> DoubleBinding
+      bindDouble(ObservableValue<T> obs, ToDoubleFunction<? super T> map) {
     return new DoubleBinding() {
       {
         bind(obs);

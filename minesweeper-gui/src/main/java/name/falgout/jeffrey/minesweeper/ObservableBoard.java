@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.util.Pair;
+
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 
@@ -32,7 +33,7 @@ public class ObservableBoard implements MutableBoard {
 
   private void update(Point index, Square oldSquare, Square newSquare) {
     updatedSquare.set(new Pair<>(index, newSquare));
-    
+
     boolean wasFlag = oldSquare == ExtraSquare.FLAG;
     boolean isFlag = newSquare == ExtraSquare.FLAG;
     if (wasFlag ^ isFlag) {
