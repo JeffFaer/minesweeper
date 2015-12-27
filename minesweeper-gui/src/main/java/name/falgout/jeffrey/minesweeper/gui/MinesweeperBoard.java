@@ -45,8 +45,8 @@ public class MinesweeperBoard extends GridPane {
     game = new FlagMinesweeper(new FlagMinesweeperState(board, numMines, countDown));
     this.board = board;
 
-    board.updatedSquare().addListener((obs, oldValue, newValue) -> {
-      updateButton(newValue.getKey(), newValue.getValue());
+    board.addListener(e -> {
+      updateButton(e.getPoint(), e.getSquare());
     });
 
     DoubleBinding insetsLeft = FunctionBindings.bindDouble(insetsProperty(), Insets::getLeft);

@@ -8,13 +8,48 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableObjectValue;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.util.Pair;
 
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
 
 public class ObservableBoard implements MutableBoard {
+  public static class SquareUpdate extends Event {
+    private static final long serialVersionUID = 5475728033566313676L;
+    public static final EventType<SquareUpdate> SQUARE_UPDATE = new EventType<>("SquareUpdate");
+
+    private final Point point;
+    private final Square square;
+
+    public SquareUpdate(ObservableBoard source, Point point, Square square) {
+      super(source, null, SQUARE_UPDATE);
+      this.point = point;
+      this.square = square;
+    }
+
+    public Point getPoint() {
+      return point;
+    }
+
+    public Square getSquare() {
+      return square;
+    }
+
+    @Override
+    public ObservableBoard getSource() {
+      return (ObservableBoard) super.getSource();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public EventType<SquareUpdate> getEventType() {
+      return (EventType<SquareUpdate>) super.getEventType();
+    }
+  }
+
   private final MutableBoard board;
   private final ObjectProperty<Pair<Point, Square>> updatedSquare = new SimpleObjectProperty<>();
   private final IntegerProperty numFlags = new SimpleIntegerProperty(0);
@@ -23,8 +58,10 @@ public class ObservableBoard implements MutableBoard {
     this.board = board;
   }
 
-  public ObservableObjectValue<Pair<Point, Square>> updatedSquare() {
-    return updatedSquare;
+  public void addListener(EventHandler<SquareUpdate> listener) {
+    updatedSquare.addListener((obs, oldValue, newValue) -> {
+      listener.handle(new SquareUpdate(ObservableBoard.this, newValue.getKey(), newValue.getValue()));
+    });
   }
 
   public IntegerProperty numFlags() {
