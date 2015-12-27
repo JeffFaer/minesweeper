@@ -73,7 +73,7 @@ public class ObservableBoard implements MutableBoard {
   }
 
   @Override
-  public Stream<Point> getValidIndexes() {
+  public Stream<? extends Point> getValidIndexes() {
     return board.getValidIndexes();
   }
 
@@ -88,12 +88,12 @@ public class ObservableBoard implements MutableBoard {
   }
 
   @Override
-  public Set<Point> getNeighbors(Point point) {
+  public Set<? extends Point> getNeighbors(Point point) {
     return board.getNeighbors(point);
   }
 
   @Override
-  public Set<Point> getNeighbors(int row, int col) {
+  public Set<? extends Point> getNeighbors(int row, int col) {
     return board.getNeighbors(row, col);
   }
 }

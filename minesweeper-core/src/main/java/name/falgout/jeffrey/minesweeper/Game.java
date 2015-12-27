@@ -24,7 +24,7 @@ public abstract class Game<T, G extends Game<T, G>> implements GameState<T> {
   }
 
   @Override
-  public Stream<T> getTransitions() {
+  public Stream<? extends T> getTransitions() {
     return state.getTransitions();
   }
 

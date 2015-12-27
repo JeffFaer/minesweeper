@@ -132,7 +132,7 @@ public class MinesweeperBoard extends GridPane {
 
   private void armNeighbors(Point p, MouseEvent e) {
     if (board.getSquare(p).isRevealed()) {
-      Set<Point> neighbors = board.getNeighborsBySquare(p, Square.Basic.UNKNOWN::equals);
+      Set<? extends Point> neighbors = board.getNeighborsBySquare(p, Square.Basic.UNKNOWN::equals);
       for (Point neighbor : neighbors) {
         buttons.get(neighbor).arm();
       }

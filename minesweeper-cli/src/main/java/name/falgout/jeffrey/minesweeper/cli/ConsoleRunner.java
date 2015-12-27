@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeper;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState;
 import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
-import name.falgout.jeffrey.minesweeper.NeighborFunction;
 import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
+import name.falgout.jeffrey.minesweeper.board.NeighborFunction;
 
 public class ConsoleRunner {
   public static void main(String[] args) {

@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 import org.junit.Test;
 
+import name.falgout.jeffrey.minesweeper.board.NeighborFunction;
+
 public class NeighborFunctionTest {
   @Test
   public void negativeWrapAroundTest() {

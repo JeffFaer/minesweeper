@@ -86,7 +86,7 @@ public interface Board {
     return getNumRows() * getNumColumns();
   }
 
-  default Stream<Point> getValidIndexes() {
+  default Stream<? extends Point> getValidIndexes() {
     return IntStream.range(0, getNumRows())
         .boxed()
         .flatMap(row -> IntStream.range(0, getNumColumns()).mapToObj(col -> new Point(row, col)));
@@ -98,23 +98,23 @@ public interface Board {
 
   public Square getSquare(int row, int col);
 
-  default Set<Point> getNeighbors(Point point) {
+  default Set<? extends Point> getNeighbors(Point point) {
     return getNeighbors(point.x, point.y);
   }
 
-  public Set<Point> getNeighbors(int row, int col);
+  public Set<? extends Point> getNeighbors(int row, int col);
 
-  default Set<Point> getNeighborsBySquare(Point point, Predicate<? super Square> test) {
+  default Set<? extends Point> getNeighborsBySquare(Point point, Predicate<? super Square> test) {
     return getNeighbors(point, (Point p) -> test.test(getSquare(p)));
   }
 
-  default Set<Point> getNeighbors(Point point, Predicate<? super Point> test) {
-    Set<Point> neighbors = getNeighbors(point);
+  default Set<? extends Point> getNeighbors(Point point, Predicate<? super Point> test) {
+    Set<? extends Point> neighbors = getNeighbors(point);
     neighbors.removeIf(p -> !test.test(p));
     return neighbors;
   }
 
-  default Stream<Point> getSquares(Predicate<? super Square> test) {
+  default Stream<? extends Point> getSquares(Predicate<? super Square> test) {
     return getValidIndexes().filter(p -> test.test(getSquare(p)));
   }
 }

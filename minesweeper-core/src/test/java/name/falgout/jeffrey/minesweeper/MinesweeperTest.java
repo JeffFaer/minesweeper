@@ -17,6 +17,7 @@ import name.falgout.jeffrey.minesweeper.Transition.Action;
 import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
 import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
+import name.falgout.jeffrey.minesweeper.board.NeighborFunction;
 
 public class MinesweeperTest {
   /**

@@ -7,7 +7,8 @@ import java.util.function.Function;
 public class ArrayBoard extends AbstractMutableBoard {
   private final Square[][] board;
 
-  public ArrayBoard(int numRows, int numCols, Function<Point, Set<Point>> neighbors) {
+  public ArrayBoard(int numRows, int numCols,
+      Function<? super Point, ? extends Set<? extends Point>> neighbors) {
     super(neighbors);
     board = new Square[numRows][numCols];
   }

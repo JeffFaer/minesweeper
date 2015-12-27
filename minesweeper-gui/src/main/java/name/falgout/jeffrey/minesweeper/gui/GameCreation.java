@@ -32,9 +32,9 @@ import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
-import name.falgout.jeffrey.minesweeper.NeighborFunction;
 import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
+import name.falgout.jeffrey.minesweeper.board.NeighborFunction;
 import name.falgout.jeffrey.minesweeper.gui.binding.FunctionBindings;
 import name.falgout.jeffrey.minesweeper.gui.validate.InputValidator;
 import name.falgout.jeffrey.minesweeper.gui.validate.Range;

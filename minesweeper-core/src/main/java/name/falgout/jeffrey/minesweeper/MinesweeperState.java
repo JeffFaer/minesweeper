@@ -20,12 +20,13 @@ import name.falgout.jeffrey.minesweeper.board.ArrayBoard;
 import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
 import name.falgout.jeffrey.minesweeper.board.MutableBoard;
+import name.falgout.jeffrey.minesweeper.board.NeighborFunction;
 
 public class MinesweeperState extends AbstractGameState<Transition> {
   private static final NeighborFunction DEFAULT_NEIGHBOR_FUNCTION = NeighborFunction.CIRCLE;
 
   private static MutableBoard createDefaultPlayerBoard(int numRows, int numCols,
-      Function<Point, Set<Point>> neighbors) {
+      Function<? super Point, ? extends Set<? extends Point>> neighbors) {
     return new ArrayBoard(numRows, numCols, neighbors);
   }
 
@@ -50,17 +51,17 @@ public class MinesweeperState extends AbstractGameState<Transition> {
   }
 
   public MinesweeperState(int numRows, int numCols, int numMines,
-      Function<Point, Set<Point>> neighbors) {
+      Function<? super Point, ? extends Set<? extends Point>> neighbors) {
     this(createDefaultPlayerBoard(numRows, numCols, neighbors), numMines);
   }
 
   public MinesweeperState(int numRows, int numCols, int numMines,
-      Function<Point, Set<Point>> neighbors, long seed) {
+      Function<? super Point, ? extends Set<? extends Point>> neighbors, long seed) {
     this(createDefaultPlayerBoard(numRows, numCols, neighbors), numMines, seed);
   }
 
   public MinesweeperState(int numRows, int numCols, int numMines,
-      Function<Point, Set<Point>> neighbors, Random random) {
+      Function<? super Point, ? extends Set<? extends Point>> neighbors, Random random) {
     this(createDefaultPlayerBoard(numRows, numCols, neighbors), numMines, random);
   }
 
@@ -93,7 +94,7 @@ public class MinesweeperState extends AbstractGameState<Transition> {
   }
 
   @Override
-  public Stream<Transition> getTransitions() {
+  public Stream<? extends Transition> getTransitions() {
     return board.getValidIndexes().map(Action::reveal).filter(this::isValid);
   }
 
