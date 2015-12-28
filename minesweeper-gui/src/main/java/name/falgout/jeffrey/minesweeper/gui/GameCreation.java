@@ -18,6 +18,8 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -47,10 +49,12 @@ public class GameCreation extends VBox {
 
   private final IntegerBinding maxMines;
 
-  private final ObjectProperty<Function<Point, Set<Point>>> neighbors = new SimpleObjectProperty<>(
+  private final ObjectProperty<NeighborFunction> neighbors = new SimpleObjectProperty<>(
       NeighborFunction.CIRCLE);
   private final BooleanProperty wrapAround = new SimpleBooleanProperty(false);
   private final ObjectBinding<Function<Point, Set<Point>>> actualNeighbors;
+
+  private final BooleanProperty countDown = new SimpleBooleanProperty(false);
 
   public GameCreation() {
     actualNeighbors = Bindings.createObjectBinding(this::createNeighborsFunction, neighbors,
@@ -70,13 +74,44 @@ public class GameCreation extends VBox {
     Label mines = new Label("Mines: ");
     mines.setLabelFor(minesEntry);
 
+    ComboBox<NeighborFunction> neighborFunction = new ComboBox<>();
+    neighborFunction.getItems().addAll(NeighborFunction.values());
+    neighborFunction.getSelectionModel().select(neighbors.get());
+    filterActionEvents(neighborFunction);
+    neighborFunction.addEventFilter(ActionEvent.ACTION, e -> {
+      neighbors.set(neighborFunction.getSelectionModel().getSelectedItem());
+    });
+    neighbors.addListener((obs, oldValue, newValue) -> {
+      neighborFunction.getSelectionModel().select(newValue);
+    });
+
+    Label neighbors = new Label("Neighbor Function: ");
+    neighbors.setLabelFor(neighborFunction);
+
+    CheckBox wrapAroundBox = new CheckBox("Wrap around?");
+    wrapAroundBox.selectedProperty().bindBidirectional(wrapAround);
+    filterActionEvents(wrapAroundBox);
+
+    CheckBox countDownBox = new CheckBox("Count down?");
+    countDownBox.selectedProperty().bindBidirectional(countDown);
+    filterActionEvents(countDownBox);
+
     GridPane entries = new GridPane();
     entries.add(rows, 0, 0);
     entries.add(rowEntry, 1, 0);
+
     entries.add(cols, 0, 1);
     entries.add(colEntry, 1, 1);
+
     entries.add(mines, 0, 2);
     entries.add(minesEntry, 1, 2);
+
+    entries.add(neighbors, 0, 3);
+    entries.add(neighborFunction, 1, 3);
+
+    entries.add(wrapAroundBox, 0, 4);
+
+    entries.add(countDownBox, 0, 5);
 
     HBox selections = new HBox();
     selections.getChildren().addAll(entries);
@@ -117,9 +152,7 @@ public class GameCreation extends VBox {
     TextField entry = new TextField();
     entry.setAlignment(Pos.CENTER);
     entry.setPrefColumnCount(3);
-    entry.addEventFilter(ActionEvent.ACTION, e -> {
-      e.consume();
-    });
+    filterActionEvents(entry);
 
     InputValidator<Integer> validator = new InputValidator<>(STRING_INT_CONVERTER);
     validator.range().bind(range);
@@ -128,6 +161,12 @@ public class GameCreation extends VBox {
     validator.value().bindBidirectional(prop.asObject());
 
     return entry;
+  }
+
+  private void filterActionEvents(Node node) {
+    node.addEventFilter(ActionEvent.ACTION, e -> {
+      e.consume();
+    });
   }
 
   private void createFocusTraversal(KeyCombination keyCode, Node... nodes) {
@@ -168,5 +207,9 @@ public class GameCreation extends VBox {
 
   public BooleanProperty wrapAround() {
     return wrapAround;
+  }
+  
+  public BooleanProperty countDown() {
+    return countDown;
   }
 }

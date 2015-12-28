@@ -23,6 +23,8 @@ public class Main extends Application {
   private HBox toolbar;
   private Stage stage;
 
+  private GameCreation creation;
+
   @Override
   public void start(Stage primaryStage) {
     stage = primaryStage;
@@ -47,14 +49,17 @@ public class Main extends Application {
   }
 
   private void createGame() {
-    GameCreation create = new GameCreation();
-    create.addEventHandler(ActionEvent.ACTION, e -> {
-      create.setDisable(true);
-      content.getChildren().remove(create);
-      beginGame(create.board().get(), create.numMines().get(), false);
-    });
+    if (creation == null) {
+      creation = new GameCreation();
+      creation.addEventHandler(ActionEvent.ACTION, e -> {
+        creation.setDisable(true);
+        content.getChildren().remove(creation);
+        beginGame(creation.board().get(), creation.numMines().get(), creation.countDown().get());
+      });
+    }
 
-    content.getChildren().add(create);
+    creation.setDisable(false);
+    content.getChildren().add(creation);
     stage.sizeToScene();
   }
 
