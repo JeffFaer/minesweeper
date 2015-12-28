@@ -47,9 +47,10 @@ public class InputValidator<T> {
     rangeListener = (obs, oldValue, newValue) -> {
       validate(text, value.get());
     };
-
-    value.addListener(valueListener);
+    
     text.focusedProperty().addListener(focusedListener);
+    value.addListener(valueListener);
+    range.addListener(rangeListener);
   }
 
   private void validate(TextInputControl text, T originalValue) {

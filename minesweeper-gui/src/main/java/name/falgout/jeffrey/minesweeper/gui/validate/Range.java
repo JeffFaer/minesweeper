@@ -83,7 +83,7 @@ public interface Range<T> extends Comparable<T> {
 
     @Override
     public String toString() {
-      return "<= " + max;
+      return "x < " + max;
     }
   }
 
@@ -113,7 +113,7 @@ public interface Range<T> extends Comparable<T> {
 
     @Override
     public String toString() {
-      return ">= " + min;
+      return min + " < x";
     }
   }
 
@@ -143,7 +143,7 @@ public interface Range<T> extends Comparable<T> {
 
     @Override
     public String toString() {
-      return "[" + min().get() + ", " + max().get() + "]";
+      return min().get() + " < x < " + max().get();
     }
   }
 }
