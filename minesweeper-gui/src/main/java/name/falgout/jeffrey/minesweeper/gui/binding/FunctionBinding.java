@@ -1,33 +1,65 @@
 package name.falgout.jeffrey.minesweeper.gui.binding;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.value.ObservableValue;
 
 public class FunctionBinding<R> extends ObjectBinding<R> {
-  private class Helper<T> {
-    private final ObservableValue<T> value;
-    private final ObservableValue<? extends Function<? super T, ? extends R>> map;
+  private interface Helper<R> {
+    public R apply();
+  }
 
-    public Helper(ObservableValue<T> value,
-        ObservableValue<? extends Function<? super T, ? extends R>> map) {
-      this.value = value;
+  private class UniHelper<T> implements Helper<R> {
+    private final ObservableValue<? extends Function<? super T, ? extends R>> map;
+    private final ObservableValue<T> value;
+
+    public UniHelper(ObservableValue<? extends Function<? super T, ? extends R>> map,
+        ObservableValue<T> value) {
       this.map = map;
+      this.value = value;
+
+      bind(map, value);
     }
 
+    @Override
     public R apply() {
       return map.getValue().apply(value.getValue());
     }
   }
 
-  private final Helper<?> helper;
+  private class BiHelper<T, U> implements Helper<R> {
+    private final ObservableValue<? extends BiFunction<? super T, ? super U, ? extends R>> map;
+    private final ObservableValue<T> value1;
+    private final ObservableValue<U> value2;
 
-  public <T> FunctionBinding(ObservableValue<T> value,
-      ObservableValue<? extends Function<? super T, ? extends R>> map) {
-    helper = new Helper<>(value, map);
+    public BiHelper(ObservableValue<? extends BiFunction<? super T, ? super U, ? extends R>> map,
+        ObservableValue<T> value1, ObservableValue<U> value2) {
+      this.map = map;
+      this.value1 = value1;
+      this.value2 = value2;
 
-    bind(value, map);
+      bind(map, value1, value2);
+    }
+
+    @Override
+    public R apply() {
+      return map.getValue().apply(value1.getValue(), value2.getValue());
+    }
+  }
+
+  private final Helper<R> helper;
+
+  public <T> FunctionBinding(ObservableValue<? extends Function<? super T, ? extends R>> map,
+      ObservableValue<T> value) {
+    helper = new UniHelper<>(map, value);
+  }
+
+  public <T, U> FunctionBinding(
+      ObservableValue<? extends BiFunction<? super T, ? super U, ? extends R>> map,
+      ObservableValue<T> value1, ObservableValue<U> value2) {
+    helper = new BiHelper<>(map, value1, value2);
   }
 
   @Override
@@ -36,11 +68,11 @@ public class FunctionBinding<R> extends ObjectBinding<R> {
   }
 
   public <RR> FunctionBinding<RR> andThen(Function<? super R, ? extends RR> map) {
-    return new FunctionBinding<>(this, FunctionBindings.singleton(map));
+    return andThen(FunctionBindings.singleton(map));
   }
 
   public <RR> FunctionBinding<RR> andThen(
       ObservableValue<? extends Function<? super R, ? extends RR>> map) {
-    return new FunctionBinding<>(this, map);
+    return new FunctionBinding<>(map, this);
   }
 }

@@ -49,10 +49,10 @@ public class MinesweeperBoard extends GridPane {
       updateButton(e.getPoint(), e.getSquare());
     });
 
-    DoubleBinding insetsLeft = FunctionBindings.bindDouble(insetsProperty(), Insets::getLeft);
-    DoubleBinding insetsRight = FunctionBindings.bindDouble(insetsProperty(), Insets::getRight);
-    DoubleBinding insetsTop = FunctionBindings.bindDouble(insetsProperty(), Insets::getTop);
-    DoubleBinding insetsBottom = FunctionBindings.bindDouble(insetsProperty(), Insets::getBottom);
+    DoubleBinding insetsLeft = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getLeft);
+    DoubleBinding insetsRight = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getRight);
+    DoubleBinding insetsTop = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getTop);
+    DoubleBinding insetsBottom = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getBottom);
 
     DoubleBinding insetsWidth = insetsLeft.add(insetsRight);
     DoubleBinding insetsHeight = insetsTop.add(insetsBottom);
@@ -77,7 +77,7 @@ public class MinesweeperBoard extends GridPane {
           square.minHeightProperty().bindBidirectional(square.minWidthProperty());
           square.minHeightProperty().set(MIN_GRID_WIDTH);
 
-          BooleanBinding isNegative = FunctionBindings.bindInt(square.textProperty(),
+          BooleanBinding isNegative = FunctionBindings.applyAsInt(square.textProperty(),
               this::safeParseInt).lessThan(0);
           NumberBinding fullFontSize = Bindings.when(isNegative)
               .then(negativeFontSize)

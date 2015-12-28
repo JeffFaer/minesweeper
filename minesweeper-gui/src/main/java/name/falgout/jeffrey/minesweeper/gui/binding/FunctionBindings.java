@@ -18,43 +18,44 @@ public final class FunctionBindings {
     return Bindings.createObjectBinding(() -> obj);
   }
 
-  public static <T, R> FunctionBinding<R> bind(ObservableValue<T> obs,
-      ObservableValue<? extends Function<? super T, ? extends R>> map) {
-    return new FunctionBinding<>(obs, map);
+  public static <T, R> FunctionBinding<R> apply(
+      ObservableValue<? extends Function<? super T, ? extends R>> map, ObservableValue<T> obs) {
+    return new FunctionBinding<>(map, obs);
   }
 
-  public static <T, R> FunctionBinding<R> bind(T obs,
-      ObservableValue<? extends Function<? super T, ? extends R>> map) {
-    return bind(singleton(obs), map);
+  public static <T, R> FunctionBinding<R> apply(Function<? super T, ? extends R> map,
+      ObservableValue<T> obs) {
+    return apply(singleton(map), obs);
   }
 
-  public static <T, R> FunctionBinding<R> bind(ObservableValue<T> obs,
-      Function<? super T, ? extends R> map) {
-    return bind(obs, singleton(map));
+  public static <T, R> FunctionBinding<R> apply(
+      ObservableValue<? extends Function<? super T, ? extends R>> map, T obs) {
+    return apply(map, singleton(obs));
   }
 
-  public static <T, U, R> FunctionBinding<R> bind(ObservableValue<T> o1, ObservableValue<U> o2,
-      ObservableValue<? extends BiFunction<? super T, ? super U, ? extends R>> map) {
-    Function<T, R> curried = t -> map.getValue().apply(t, o2.getValue());
-    return new FunctionBinding<>(o1, Bindings.createObjectBinding(() -> curried, o2, map));
+  public static <T, U, R> FunctionBinding<R> apply(
+      ObservableValue<? extends BiFunction<? super T, ? super U, ? extends R>> map,
+      ObservableValue<T> o1, ObservableValue<U> o2) {
+    return new FunctionBinding<>(map, o1, o2);
   }
 
-  public static <T, U, R> FunctionBinding<R> bind(ObservableValue<T> o1, ObservableValue<U> o2,
-      BiFunction<? super T, ? super U, ? extends R> map) {
-    return bind(o1, o2, singleton(map));
+  public static <T, U, R> FunctionBinding<R> apply(
+      BiFunction<? super T, ? super U, ? extends R> map, ObservableValue<T> o1,
+      ObservableValue<U> o2) {
+    return apply(singleton(map), o1, o2);
   }
 
-  public static <T, U, R> FunctionBinding<R> bind(T o1, ObservableValue<U> o2,
-      BiFunction<? super T, ? super U, ? extends R> map) {
-    return bind(singleton(o1), o2, singleton(map));
+  public static <T, U, R> FunctionBinding<R> apply(
+      BiFunction<? super T, ? super U, ? extends R> map, T o1, ObservableValue<U> o2) {
+    return apply(singleton(map), singleton(o1), o2);
   }
 
-  public static <T, U, R> FunctionBinding<R> bind(ObservableValue<T> o1, U o2,
-      BiFunction<? super T, ? super U, ? extends R> map) {
-    return bind(o1, singleton(o2), singleton(map));
+  public static <T, U, R> FunctionBinding<R> apply(
+      BiFunction<? super T, ? super U, ? extends R> map, ObservableValue<T> o1, U o2) {
+    return apply(singleton(map), o1, singleton(o2));
   }
 
-  public static <T> IntegerBinding bindInt(ObservableValue<T> obs, ToIntFunction<? super T> map) {
+  public static <T> IntegerBinding applyAsInt(ObservableValue<T> obs, ToIntFunction<? super T> map) {
     return new IntegerBinding() {
       {
         bind(obs);
@@ -67,8 +68,8 @@ public final class FunctionBindings {
     };
   }
 
-  public static <T> DoubleBinding
-      bindDouble(ObservableValue<T> obs, ToDoubleFunction<? super T> map) {
+  public static <T> DoubleBinding applyAsDouble(ObservableValue<T> obs,
+      ToDoubleFunction<? super T> map) {
     return new DoubleBinding() {
       {
         bind(obs);

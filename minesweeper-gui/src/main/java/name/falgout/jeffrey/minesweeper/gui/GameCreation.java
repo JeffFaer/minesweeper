@@ -55,15 +55,15 @@ public class GameCreation extends VBox {
   private final ObjectBinding<Function<Point, Set<Point>>> actualNeighbors;
 
   public GameCreation() {
-    ObjectBinding<Function<Set<Point>, Set<Point>>> wrapAroundFunction = FunctionBindings.bind(
-        numRows.asObject(), numCols.asObject(), NeighborFunction::wrapAround);
+    ObjectBinding<Function<Set<Point>, Set<Point>>> wrapAroundFunction = FunctionBindings.apply(
+        NeighborFunction::wrapAround, numRows.asObject(), numCols.asObject());
     actualNeighbors = Bindings.when(wrapAround)
-        .then(FunctionBindings.bind(neighbors, wrapAroundFunction, Function::andThen))
+        .then(FunctionBindings.apply(Function::andThen, neighbors, wrapAroundFunction))
         .otherwise(neighbors);
 
     NumberBinding size = numRows.multiply(numCols);
-    IntegerExpression numNeighbors = IntegerExpression.integerExpression(FunctionBindings.bind(
-        new Point(0, 0), actualNeighbors).andThen(Set::size));
+    IntegerExpression numNeighbors = IntegerExpression.integerExpression(FunctionBindings.apply(
+        actualNeighbors, new Point(0, 0)).andThen(Set::size));
     maxMines = (IntegerBinding) Bindings.max(0,
         IntegerExpression.integerExpression(size.subtract(numNeighbors.add(1))));
 
@@ -109,7 +109,7 @@ public class GameCreation extends VBox {
 
   private TextField createEntry(IntegerProperty prop, int min,
       ObservableValue<? extends Integer> max) {
-    return createEntry(prop, FunctionBindings.bind(min, max, Range::between));
+    return createEntry(prop, FunctionBindings.apply(Range::between, min, max));
   }
 
   private TextField createEntry(IntegerProperty prop, ObjectBinding<Range<Integer>> range) {
