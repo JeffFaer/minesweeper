@@ -55,7 +55,7 @@ public final class FunctionBindings {
     return apply(singleton(map), o1, singleton(o2));
   }
 
-  public static <T> IntegerBinding applyAsInt(ObservableValue<T> obs, ToIntFunction<? super T> map) {
+  public static <T> IntegerBinding applyAsInt(ToIntFunction<? super T> map, ObservableValue<T> obs) {
     return new IntegerBinding() {
       {
         bind(obs);
@@ -68,8 +68,8 @@ public final class FunctionBindings {
     };
   }
 
-  public static <T> DoubleBinding applyAsDouble(ObservableValue<T> obs,
-      ToDoubleFunction<? super T> map) {
+  public static <T> DoubleBinding applyAsDouble(ToDoubleFunction<? super T> map,
+      ObservableValue<T> obs) {
     return new DoubleBinding() {
       {
         bind(obs);

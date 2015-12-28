@@ -6,9 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -24,10 +22,9 @@ import name.falgout.jeffrey.minesweeper.FlagMinesweeperState.ExtraSquare;
 import name.falgout.jeffrey.minesweeper.ObservableBoard;
 import name.falgout.jeffrey.minesweeper.board.Board;
 import name.falgout.jeffrey.minesweeper.board.Board.Square;
-import name.falgout.jeffrey.minesweeper.gui.binding.FunctionBindings;
 
 public class MinesweeperBoard extends GridPane {
-  private static final double MIN_GRID_WIDTH = 30;
+  private static final double MIN_GRID_WIDTH = 25;
   private static final PseudoClass REVEALED = PseudoClass.getPseudoClass("revealed");
 
   private final Map<Point, Button> buttons = new LinkedHashMap<>();
@@ -36,6 +33,8 @@ public class MinesweeperBoard extends GridPane {
 
   private final BooleanProperty gameStarted = new SimpleBooleanProperty(false);
   private final BooleanProperty gameComplete = new SimpleBooleanProperty(false);
+
+  private DoubleBinding squareSize;
 
   public MinesweeperBoard(ObservableBoard board, int numMines) {
     this(board, numMines, false);
@@ -49,49 +48,34 @@ public class MinesweeperBoard extends GridPane {
       updateButton(e.getPoint(), e.getSquare());
     });
 
-    DoubleBinding insetsLeft = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getLeft);
-    DoubleBinding insetsRight = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getRight);
-    DoubleBinding insetsTop = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getTop);
-    DoubleBinding insetsBottom = FunctionBindings.applyAsDouble(insetsProperty(), Insets::getBottom);
-
-    DoubleBinding insetsWidth = insetsLeft.add(insetsRight);
-    DoubleBinding insetsHeight = insetsTop.add(insetsBottom);
-
-    DoubleBinding usableWidth = widthProperty().subtract(insetsWidth);
-    DoubleBinding widthPerColumn = usableWidth.divide(board.getNumColumns());
-    DoubleBinding usableHeight = heightProperty().subtract(insetsHeight);
-    DoubleBinding heightPerRow = usableHeight.divide(board.getNumRows());
-
-    NumberBinding squareSize = Bindings.min(widthPerColumn, heightPerRow);
-
-    NumberBinding fontSize = squareSize.multiply(.45);
-    NumberBinding negativeFontSize = fontSize.multiply(.75);
+    squareSize = Bindings.createDoubleBinding(this::calculateSquareSize, insetsProperty(),
+        heightProperty(), widthProperty());
 
     board.getValidIndexes().forEach(
         p -> {
           Button square = new Button();
           square.getStyleClass().add("grid");
 
-          square.prefHeightProperty().bindBidirectional(square.prefWidthProperty());
-          square.prefHeightProperty().bind(squareSize);
           square.minHeightProperty().bindBidirectional(square.minWidthProperty());
           square.minHeightProperty().set(MIN_GRID_WIDTH);
+          square.prefHeightProperty().bindBidirectional(square.prefWidthProperty());
+          square.prefHeightProperty().bind(squareSize);
 
-          BooleanBinding isNegative = FunctionBindings.applyAsInt(square.textProperty(),
-              this::safeParseInt).lessThan(0);
-          NumberBinding fullFontSize = Bindings.when(isNegative)
-              .then(negativeFontSize)
-              .otherwise(fontSize);
-          square.styleProperty().bind(fullFontSize.asString("-fx-font-size: %f;"));
+          DoubleBinding fontSize = Bindings.createDoubleBinding(() -> calculateFontSize(square),
+              squareSize, square.textProperty());
+          square.styleProperty().bind(fontSize.asString("-fx-font-size: %f;"));
 
           square.setFocusTraversable(false);
           square.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> armNeighbors(p, e));
           square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> disarmNeighbors(p, e));
           square.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> updateGame(p, e));
 
-          add(square, p.y, p.x);
+          GridPane.setRowIndex(square, p.x);
+          GridPane.setColumnIndex(square, p.y);
           buttons.put(p, square);
         });
+
+    getChildren().addAll(buttons.values());
   }
 
   private void updateButton(Point p, Square s) {
@@ -122,11 +106,26 @@ public class MinesweeperBoard extends GridPane {
     }
   }
 
-  private int safeParseInt(String s) {
-    try {
-      return Integer.parseInt(s);
-    } catch (NumberFormatException e) {
-      return 0;
+  private double calculateSquareSize() {
+    Insets insets = insetsProperty().get();
+    double insetsWidth = insets.getLeft() + insets.getRight();
+    double insetsHeight = insets.getTop() + insets.getBottom();
+
+    double usableWidth = widthProperty().get() - insetsWidth;
+    double usableHeight = heightProperty().get() - insetsHeight;
+
+    double widthPerColumn = usableWidth / board.getNumColumns();
+    double heightPerRow = usableHeight / board.getNumRows();
+
+    return Math.min(widthPerColumn, heightPerRow);
+  }
+
+  private double calculateFontSize(Button square) {
+    double standardFontSize = .45 * squareSize.get();
+    if (square.getStyleClass().contains("_negative")) {
+      return .75 * standardFontSize;
+    } else {
+      return standardFontSize;
     }
   }
 

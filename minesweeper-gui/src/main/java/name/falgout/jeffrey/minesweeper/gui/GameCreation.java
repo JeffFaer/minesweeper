@@ -6,8 +6,6 @@ import java.util.function.Function;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
-import javafx.beans.binding.IntegerExpression;
-import javafx.beans.binding.NumberBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
@@ -55,17 +53,10 @@ public class GameCreation extends VBox {
   private final ObjectBinding<Function<Point, Set<Point>>> actualNeighbors;
 
   public GameCreation() {
-    ObjectBinding<Function<Set<Point>, Set<Point>>> wrapAroundFunction = FunctionBindings.apply(
-        NeighborFunction::wrapAround, numRows.asObject(), numCols.asObject());
-    actualNeighbors = Bindings.when(wrapAround)
-        .then(FunctionBindings.apply(Function::andThen, neighbors, wrapAroundFunction))
-        .otherwise(neighbors);
-
-    NumberBinding size = numRows.multiply(numCols);
-    IntegerExpression numNeighbors = IntegerExpression.integerExpression(FunctionBindings.apply(
-        actualNeighbors, new Point(0, 0)).andThen(Set::size));
-    maxMines = (IntegerBinding) Bindings.max(0,
-        IntegerExpression.integerExpression(size.subtract(numNeighbors.add(1))));
+    actualNeighbors = Bindings.createObjectBinding(this::createNeighborsFunction, neighbors,
+        wrapAround, numRows, numCols);
+    maxMines = Bindings.createIntegerBinding(this::calculateMaxMines, numRows, numCols,
+        actualNeighbors);
 
     TextField rowEntry = createEntry(numRows, 1);
     Label rows = new Label("Rows: ");
@@ -101,6 +92,16 @@ public class GameCreation extends VBox {
     getChildren().addAll(selections, create);
 
     createFocusTraversal(ENTER, rowEntry, colEntry, minesEntry, create);
+  }
+
+  private Function<Point, Set<Point>> createNeighborsFunction() {
+    return wrapAround.get() ? neighbors.getValue().andThen(
+        NeighborFunction.wrapAround(numRows.get(), numCols.get())) : neighbors.getValue();
+  }
+
+  private int calculateMaxMines() {
+    int numNeighbors = actualNeighbors.getValue().apply(new Point(0, 0)).size();
+    return (numRows.get() * numCols.get()) - (numNeighbors + 1);
   }
 
   private TextField createEntry(IntegerProperty prop, int min) {
